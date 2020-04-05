@@ -85,6 +85,11 @@ float PWM_MAX_VAL = 4250;
 float eq_first_part;
 float t_a, t_b, t_zero;
 uint16_t t1, t2, t3, t4;
+
+uint8_t return_value[2];
+uint16_t raw_angle;
+float res_angle;
+HAL_StatusTypeDef status = HAL_OK;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -126,7 +131,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-
+  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -173,16 +178,16 @@ int main(void)
     pulse_ch1 = 400;
     pulse_ch2 = 800;
     pulse_ch3 = 400;
-    Uv_ampl = 0.1;
+    Uv_ampl = 0.5;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     while (1)
     {
-    HAL_Delay(5);
+    HAL_Delay(100);
 //	printf("%d %d\n", buff_data[0], buff_data[1]);
-    Uv_ang += ((float)buff_data[0])/4096.0*10.0;
+    Uv_ang += ((float)buff_data[0])/4096.0*50.0;
 	if(Uv_ang >= 360)
 		Uv_ang = 0;
 
@@ -191,24 +196,24 @@ int main(void)
     Beta_ang = Uv_ang - 60.0*(sector_number-1);
 
     /* Calculate t_a, t_b, t_0*/
-    // eq_first_part = coeff_timing * PWM_MAX_VAL * Uv_ampl;
+    eq_first_part = coeff_timing * PWM_MAX_VAL * Uv_ampl;
 
-    // t_a = eq_first_part * sin((60.0-Beta_ang)*(float)0.0035367765);
-    // t_b = eq_first_part * sin((Beta_ang)*(float)0.0035367765);
-    // t_zero = PWM_MAX_VAL - t_a - t_b;
+    t_a = eq_first_part * sin((60.0-Beta_ang)*(float)0.0035367765);
+    t_b = eq_first_part * sin((Beta_ang)*(float)0.0035367765);
+    t_zero = PWM_MAX_VAL - t_a - t_b;
 
-    t_a     = Uv_ampl * PWM_MAX_VAL * sin((60.0-Beta_ang)*(float)0.0035367765);
-    t_b     = Uv_ampl * PWM_MAX_VAL * sin((Beta_ang)*(float)0.0035367765);
-    t_zero  = PWM_MAX_VAL - t_a - t_b;
+    // t_a     = Uv_ampl * PWM_MAX_VAL * sin((60.0-Beta_ang)*(float)0.0035367765);
+    // t_b     = Uv_ampl * PWM_MAX_VAL * sin((Beta_ang)*(float)0.0035367765);
+    // t_zero  = PWM_MAX_VAL - t_a - t_b;
+
+    if(t_zero < 0)
+        t_zero = 0;
 
     /* Set pulse values */
     t1 = (uint16_t) floor(t_a + t_b + t_zero/2.0);
     t2 = (uint16_t) floor(t_b + t_zero/2.0);
     t3 = (uint16_t) floor(t_a + t_zero/2.0);
     t4 = (uint16_t) floor(t_zero/2.0);
-
-    if(t_zero < 0)
-        t_zero = 0;
 
     switch (sector_number)
     {
@@ -255,6 +260,16 @@ int main(void)
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pulse_ch1);
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, pulse_ch2);
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, pulse_ch3);
+
+
+    /* Read encoder */
+
+    status = HAL_I2C_Mem_Read(&hi2c1, 0x36<<1, 0x0E, I2C_MEMADD_SIZE_8BIT, (return_value), 2, 100);
+	raw_angle = (uint16_t)(return_value[0] << 8) + return_value[1];
+	res_angle = 360.0 / 4096.0 * raw_angle;
+    if(status == HAL_OK)
+        printf("%f\n", res_angle);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -272,10 +287,10 @@ void SystemClock_Config(void)
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
   RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
-  /** Configure the main internal regulator output voltage
+  /** Configure the main internal regulator output voltage 
   */
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
-  /** Initializes the CPU, AHB and APB busses clocks
+  /** Initializes the CPU, AHB and APB busses clocks 
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
@@ -290,7 +305,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks
+  /** Initializes the CPU, AHB and APB busses clocks 
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
@@ -303,7 +318,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the peripherals clocks
+  /** Initializes the peripherals clocks 
   */
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART2|RCC_PERIPHCLK_I2C1
                               |RCC_PERIPHCLK_ADC12;
@@ -334,7 +349,7 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 1 */
 
   /* USER CODE END ADC1_Init 1 */
-  /** Common config
+  /** Common config 
   */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
@@ -356,14 +371,14 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
-  /** Configure the ADC multi-mode
+  /** Configure the ADC multi-mode 
   */
   multimode.Mode = ADC_MODE_INDEPENDENT;
   if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Configure Regular Channel
+  /** Configure Regular Channel 
   */
   sConfig.Channel = ADC_CHANNEL_11;
   sConfig.Rank = ADC_REGULAR_RANK_1;
@@ -375,7 +390,7 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
-  /** Configure Regular Channel
+  /** Configure Regular Channel 
   */
   sConfig.Channel = ADC_CHANNEL_VOPAMP1;
   sConfig.Rank = ADC_REGULAR_RANK_2;
@@ -406,7 +421,7 @@ static void MX_ADC2_Init(void)
   /* USER CODE BEGIN ADC2_Init 1 */
 
   /* USER CODE END ADC2_Init 1 */
-  /** Common config
+  /** Common config 
   */
   hadc2.Instance = ADC2;
   hadc2.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
@@ -428,7 +443,7 @@ static void MX_ADC2_Init(void)
   {
     Error_Handler();
   }
-  /** Configure Regular Channel
+  /** Configure Regular Channel 
   */
   sConfig.Channel = ADC_CHANNEL_VOPAMP2;
   sConfig.Rank = ADC_REGULAR_RANK_1;
@@ -440,7 +455,7 @@ static void MX_ADC2_Init(void)
   {
     Error_Handler();
   }
-  /** Configure Regular Channel
+  /** Configure Regular Channel 
   */
   sConfig.Rank = ADC_REGULAR_RANK_2;
   if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
@@ -521,7 +536,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x30A0A7FB;
+  hi2c1.Init.Timing = 0x10802D9B;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -533,13 +548,13 @@ static void MX_I2C1_Init(void)
   {
     Error_Handler();
   }
-  /** Configure Analogue filter
+  /** Configure Analogue filter 
   */
   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Configure Digital filter
+  /** Configure Digital filter 
   */
   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
   {
@@ -834,10 +849,10 @@ static void MX_USART2_UART_Init(void)
 
 }
 
-/**
+/** 
   * Enable DMA controller clock
   */
-static void MX_DMA_Init(void)
+static void MX_DMA_Init(void) 
 {
 
   /* DMA controller clock enable */
@@ -908,7 +923,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{
+{ 
   /* USER CODE BEGIN 6 */
   /* User can add his own implementation to report the file name and line number,
      tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
