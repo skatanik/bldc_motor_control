@@ -397,6 +397,7 @@ void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef* hopamp)
     /**OPAMP1 GPIO Configuration    
     PA1     ------> OPAMP1_VINP
     PA2     ------> OPAMP1_VOUT
+    PA3     ------> OPAMP1_VINM0
     PA3     ------> OPAMP1_VINM 
     */
     GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
@@ -470,6 +471,7 @@ void HAL_OPAMP_MspDeInit(OPAMP_HandleTypeDef* hopamp)
     /**OPAMP1 GPIO Configuration    
     PA1     ------> OPAMP1_VINP
     PA2     ------> OPAMP1_VOUT
+    PA3     ------> OPAMP1_VINM0
     PA3     ------> OPAMP1_VINM 
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3);

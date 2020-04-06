@@ -129,7 +129,7 @@ static void MX_TIM2_Init(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-
+	int cnt = 0;
   /* USER CODE END 1 */
   
 
@@ -167,6 +167,9 @@ int main(void)
     HAL_ADC_Start_DMA(&hadc1, (uint32_t*)buff, 2);
     HAL_ADC_Start_DMA(&hadc2, (uint32_t*)buff_2, 2);
     HAL_TIM_Base_Start(&htim2);
+	HAL_OPAMP_Start(&hopamp1);
+	HAL_OPAMP_Start(&hopamp2);
+	HAL_OPAMP_Start(&hopamp3);
 
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
@@ -186,9 +189,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
     while (1)
     {
-    HAL_Delay(100);
-//	printf("%d %d\n", buff_data[0], buff_data[1]);
-    Uv_ang += ((float)buff_data[0])/4096.0*50.0;
+    HAL_Delay(5);
+    Uv_ang += ((float)buff_data[0])/4096.0*10.0;
 	if(Uv_ang >= 360)
 		Uv_ang = 0;
 
@@ -265,11 +267,17 @@ int main(void)
 
     /* Read encoder */
 
-    status = HAL_I2C_Mem_Read(&hi2c1, 0x36<<1, 0x0E, I2C_MEMADD_SIZE_8BIT, (return_value), 2, 100);
-	raw_angle = (uint16_t)(return_value[0] << 8) + return_value[1];
-	res_angle = 360.0 / 4096.0 * raw_angle;
-    if(status == HAL_OK)
-        printf("%f\n", res_angle);
+//    status = HAL_I2C_Mem_Read(&hi2c1, 0x36<<1, 0x0E, I2C_MEMADD_SIZE_8BIT, (return_value), 2, 100);
+//	raw_angle = (uint16_t)(return_value[0] << 8) + return_value[1];
+//	res_angle = 360.0 / 4096.0 * raw_angle;
+
+	if(cnt == 10)
+	{
+//		printf("%f ", res_angle); 
+		printf("%d %d %d %d\n", buff_data[0], buff_data[1], buff_2[0], buff_2[1]);
+		cnt = 0;
+	}
+	cnt ++;
 
     /* USER CODE END WHILE */
 
@@ -731,12 +739,12 @@ static void MX_TIM1_Init(void)
     Error_Handler();
   }
   HAL_TIMEx_EnableDeadTimePreload(&htim1);
-  HAL_TIMEx_ConfigAsymmetricalDeadTime(&htim1, 15);
+  HAL_TIMEx_ConfigAsymmetricalDeadTime(&htim1, 50);
   HAL_TIMEx_EnableAsymmetricalDeadTime(&htim1);
   sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
   sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
   sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-  sBreakDeadTimeConfig.DeadTime = 10;
+  sBreakDeadTimeConfig.DeadTime = 50;
   sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
   sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
   sBreakDeadTimeConfig.BreakFilter = 0;
