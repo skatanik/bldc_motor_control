@@ -108,11 +108,19 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
       __HAL_RCC_ADC12_CLK_ENABLE();
     }
   
+    __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
     /**ADC1 GPIO Configuration    
+    PA2     ------> ADC1_IN3
+    PB1     ------> ADC1_IN12
     PB12     ------> ADC1_IN11 
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_12;
+    GPIO_InitStruct.Pin = GPIO_PIN_2;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_12;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -150,6 +158,15 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
       __HAL_RCC_ADC12_CLK_ENABLE();
     }
   
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    /**ADC2 GPIO Configuration    
+    PA6     ------> ADC2_IN3 
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_6;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
     /* ADC2 DMA Init */
     /* ADC2 Init */
     hdma_adc2.Instance = DMA1_Channel2;
@@ -195,9 +212,13 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
     }
   
     /**ADC1 GPIO Configuration    
+    PA2     ------> ADC1_IN3
+    PB1     ------> ADC1_IN12
     PB12     ------> ADC1_IN11 
     */
-    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_12);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
+
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_1|GPIO_PIN_12);
 
     /* ADC1 DMA DeInit */
     HAL_DMA_DeInit(hadc->DMA_Handle);
@@ -215,6 +236,11 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
     if(HAL_RCC_ADC12_CLK_ENABLED==0){
       __HAL_RCC_ADC12_CLK_DISABLE();
     }
+  
+    /**ADC2 GPIO Configuration    
+    PA6     ------> ADC2_IN3 
+    */
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_6);
 
     /* ADC2 DMA DeInit */
     HAL_DMA_DeInit(hadc->DMA_Handle);
@@ -397,7 +423,6 @@ void HAL_OPAMP_MspInit(OPAMP_HandleTypeDef* hopamp)
     /**OPAMP1 GPIO Configuration    
     PA1     ------> OPAMP1_VINP
     PA2     ------> OPAMP1_VOUT
-    PA3     ------> OPAMP1_VINM0
     PA3     ------> OPAMP1_VINM 
     */
     GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3;
@@ -471,7 +496,6 @@ void HAL_OPAMP_MspDeInit(OPAMP_HandleTypeDef* hopamp)
     /**OPAMP1 GPIO Configuration    
     PA1     ------> OPAMP1_VINP
     PA2     ------> OPAMP1_VOUT
-    PA3     ------> OPAMP1_VINM0
     PA3     ------> OPAMP1_VINM 
     */
     HAL_GPIO_DeInit(GPIOA, GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3);
