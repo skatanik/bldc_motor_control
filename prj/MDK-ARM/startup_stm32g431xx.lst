@@ -672,11 +672,12 @@ ARM Macro Assembler    Page 11
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M4.fp --apcs=int
 erwork --depend=motor_control\startup_stm32g431xx.d -omotor_control\startup_stm
-32g431xx.o -IE:\Code\motor_control\MDK-ARM\RTE\_motor_control -IC:\Keil_v5\ARM\
-PACK\ARM\CMSIS\5.0.1\CMSIS\Include -IC:\Keil_v5\ARM\PACK\Keil\STM32G4xx_DFP\1.1
-.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include --predefine="__MICROLIB SETA 1" --
-predefine="__UVISION_VERSION SETA 522" --predefine="_RTE_ SETA 1" --predefine="
-STM32G431xx SETA 1" --list=startup_stm32g431xx.lst startup_stm32g431xx.s
+32g431xx.o -ID:\git\bldc_motor_control\prj\MDK-ARM\RTE\_motor_control -IC:\Keil
+_v5\ARM\PACK\ARM\CMSIS\5.0.1\CMSIS\Include -IC:\Keil_v5\ARM\PACK\Keil\STM32G4xx
+_DFP\1.1.0\Drivers\CMSIS\Device\ST\STM32G4xx\Include --predefine="__MICROLIB SE
+TA 1" --predefine="__UVISION_VERSION SETA 522" --predefine="_RTE_ SETA 1" --pre
+define="STM32G431xx SETA 1" --list=startup_stm32g431xx.lst startup_stm32g431xx.
+s
 
 
 
