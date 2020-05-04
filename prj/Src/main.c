@@ -67,6 +67,9 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 uint8_t adc_data_ready;
 uint16_t buff[3];
+uint16_t arm_A_raw_current;
+uint16_t arm_B_raw_current;
+uint16_t arm_C_raw_current;
 uint16_t buff_data[3];
 uint16_t buff_2[2];
 
@@ -169,24 +172,37 @@ int main(void)
   /* USER CODE BEGIN 2 */
 //    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)buff, 3);
 //    HAL_ADC_Start_DMA(&hadc2, (uint32_t*)buff_2, 1);
-//	HAL_OPAMP_Start(&hopamp1);
-//	HAL_OPAMP_Start(&hopamp2);
-//	HAL_OPAMP_Start(&hopamp3);
+	HAL_OPAMP_Start(&hopamp1);
+	HAL_OPAMP_Start(&hopamp2);
+	HAL_OPAMP_Start(&hopamp3);
 
-//    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-//    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-//    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-//	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+	__HAL_ADC_ENABLE_IT(&hadc1,ADC_IT_JEOS);
+	__HAL_ADC_ENABLE_IT(&hadc2,ADC_IT_JEOS);
+	HAL_ADCEx_InjectedStart_IT(&hadc1);
+	HAL_ADCEx_InjectedStart_IT(&hadc2);
+	
+	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+	HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
+	
+	__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
+	HAL_TIM_Base_Start(&htim1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
 
-//    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
-//    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
-//    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
-//	HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_4);
+    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
+    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
+	
     pulse_ch1 = 400;
     pulse_ch2 = 800;
     pulse_ch3 = 400;
     Uv_ampl = 0.5;
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
+	
+	HAL_ADC_Start_IT(&hadc1);
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -267,18 +283,17 @@ int main(void)
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pulse_ch1);
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, pulse_ch2);
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, pulse_ch3);
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, pulse_ch1);
 
 
     /* Read encoder */
 
-//    status = HAL_I2C_Mem_Read(&hi2c1, 0x36<<1, 0x0E, I2C_MEMADD_SIZE_8BIT, (return_value), 2, 100);
-//	raw_angle = (uint16_t)(return_value[0] << 8) + return_value[1];
-//	res_angle = 360.0 / 4096.0 * raw_angle;
+    status = HAL_I2C_Mem_Read(&hi2c1, 0x36<<1, 0x0E, I2C_MEMADD_SIZE_8BIT, (return_value), 2, 100);
+	raw_angle = (uint16_t)(return_value[0] << 8) + return_value[1];
+	res_angle = 360.0 / 4096.0 * raw_angle;
 
 	if(cnt == 10)
 	{
-//		printf("%f ", res_angle);
+		printf("%f \n", res_angle);
 //		printf("%d %d %d %d\n", buff_data[0], buff_data[1], buff_data[2], buff_2[0]);
 //		printf("%d\n", buff_data[1]);
 		cnt = 0;
@@ -418,7 +433,7 @@ static void MX_ADC1_Init(void)
   sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
   sConfigInjected.AutoInjectedConv = DISABLE;
   sConfigInjected.QueueInjectedContext = DISABLE;
-  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJEC_T1_CC4;
+  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJEC_T1_TRGO;
   sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_RISING;
   sConfigInjected.InjecOversamplingMode = DISABLE;
   if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
@@ -427,6 +442,7 @@ static void MX_ADC1_Init(void)
   }
   /** Configure Injected Channel 
   */
+  sConfigInjected.InjectedChannel = ADC_CHANNEL_12;
   sConfigInjected.InjectedRank = ADC_INJECTED_RANK_2;
   if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
   {
@@ -463,7 +479,7 @@ static void MX_ADC2_Init(void)
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc2.Init.GainCompensation = 0;
   hadc2.Init.ScanConvMode = ADC_SCAN_ENABLE;
-  hadc2.Init.EOCSelection = ADC_EOC_SEQ_CONV;
+  hadc2.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc2.Init.LowPowerAutoWait = DISABLE;
   hadc2.Init.ContinuousConvMode = DISABLE;
   hadc2.Init.NbrOfConversion = 1;
@@ -487,7 +503,7 @@ static void MX_ADC2_Init(void)
   sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
   sConfigInjected.AutoInjectedConv = DISABLE;
   sConfigInjected.QueueInjectedContext = DISABLE;
-  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJEC_T1_CC4;
+  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJEC_T1_TRGO;
   sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_RISING;
   sConfigInjected.InjecOversamplingMode = DISABLE;
   if (HAL_ADCEx_InjectedConfigChannel(&hadc2, &sConfigInjected) != HAL_OK)
@@ -727,7 +743,7 @@ static void MX_OPAMP1_Init(void)
   hopamp1.Init.InternalOutput = DISABLE;
   hopamp1.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
   hopamp1.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
-  hopamp1.Init.PgaGain = OPAMP_PGA_GAIN_2_OR_MINUS_1;
+  hopamp1.Init.PgaGain = OPAMP_PGA_GAIN_16_OR_MINUS_15;
   hopamp1.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
   if (HAL_OPAMP_Init(&hopamp1) != HAL_OK)
   {
@@ -761,7 +777,7 @@ static void MX_OPAMP2_Init(void)
   hopamp2.Init.InternalOutput = DISABLE;
   hopamp2.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
   hopamp2.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
-  hopamp2.Init.PgaGain = OPAMP_PGA_GAIN_2_OR_MINUS_1;
+  hopamp2.Init.PgaGain = OPAMP_PGA_GAIN_16_OR_MINUS_15;
   hopamp2.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
   if (HAL_OPAMP_Init(&hopamp2) != HAL_OK)
   {
@@ -795,7 +811,7 @@ static void MX_OPAMP3_Init(void)
   hopamp3.Init.InternalOutput = ENABLE;
   hopamp3.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
   hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
-  hopamp3.Init.PgaGain = OPAMP_PGA_GAIN_64_OR_MINUS_63;
+  hopamp3.Init.PgaGain = OPAMP_PGA_GAIN_16_OR_MINUS_15;
   hopamp3.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
   if (HAL_OPAMP_Init(&hopamp3) != HAL_OK)
   {
@@ -832,13 +848,13 @@ static void MX_TIM1_Init(void)
   htim1.Init.CounterMode = TIM_COUNTERMODE_CENTERALIGNED1;
   htim1.Init.Period = 4250;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.RepetitionCounter = 4;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
   {
     Error_Handler();
   }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_OC4REF;
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
   sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
@@ -1003,6 +1019,31 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc)
 {
 	
 }
+
+void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+	
+	if(hadc->Instance == ADC1) //check if the interrupt comes from ACD1
+    {
+        arm_A_raw_current = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1);
+		arm_C_raw_current = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_2);
+//		__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);	
+    }
+	if(hadc->Instance == ADC2) //check if the interrupt comes from ACD1
+    {
+        arm_B_raw_current = HAL_ADCEx_InjectedGetValue(&hadc2, ADC_INJECTED_RANK_1);	
+    }
+	
+	
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+//	 __HAL_TIM_DISABLE_IT(&htim1, TIM_IT_UPDATE);
+//	 HAL_ADCEx_InjectedStart_IT(&hadc1);
+//	 HAL_ADCEx_InjectedStart_IT(&hadc2);
+}
+
 /* USER CODE END 4 */
 
 /**
