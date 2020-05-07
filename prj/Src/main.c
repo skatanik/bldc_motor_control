@@ -77,6 +77,7 @@ uint16_t buff_2[2];
 uint16_t pulse_ch1 = 0;
 uint16_t pulse_ch2 = 0;
 uint16_t pulse_ch3 = 0;
+uint16_t pulse_ch4 = 0;
 
 float Uv_ampl = 0;
 float Uv_ang = 0;
@@ -199,10 +200,10 @@ int main(void)
     HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
 	
-    pulse_ch1 = 400;
-    pulse_ch2 = 800;
-    pulse_ch3 = 400;
-    Uv_ampl = 0.8;
+    pulse_ch1 = 0;
+    pulse_ch2 = 0;
+    pulse_ch3 = 0;
+    Uv_ampl = 1.1;
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_6, GPIO_PIN_SET);
 	
 	HAL_ADC_Start_IT(&hadc1);
@@ -214,8 +215,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
     while (1)
     {
-    HAL_Delay(5);
-    Uv_ang += 50;
+    HAL_Delay(1);
+    Uv_ang += 20;
 	if(Uv_ang >= 360)
 		Uv_ang = 0;
 
@@ -249,37 +250,44 @@ int main(void)
         pulse_ch1 = t1;
         pulse_ch2 = t2;
         pulse_ch3 = t4;
+		pulse_ch4 = pulse_ch2;
         break;
     case 2:
         pulse_ch1 = t3;
         pulse_ch2 = t1;
         pulse_ch3 = t4;
+		pulse_ch4 = pulse_ch1;
         break;
     case 3:
         pulse_ch1 = t4;
         pulse_ch2 = t1;
         pulse_ch3 = t2;
+		pulse_ch4 = pulse_ch3;
         break;
     case 4:
         pulse_ch1 = t4;
         pulse_ch2 = t3;
         pulse_ch3 = t1;
+		pulse_ch4 = pulse_ch2;
         break;
     case 5:
         pulse_ch1 = t2;
         pulse_ch2 = t4;
         pulse_ch3 = t1;
+		pulse_ch4 = pulse_ch1;
         break;
     case 6:
         pulse_ch1 = t1;
         pulse_ch2 = t4;
         pulse_ch3 = t3;
+		pulse_ch4 = pulse_ch3;
         break;
 
     default:
         pulse_ch1 = t1;
         pulse_ch2 = t2;
         pulse_ch3 = t4;
+		pulse_ch4 = t2;
         break;
     }
 
@@ -288,19 +296,21 @@ int main(void)
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, pulse_ch1);
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, pulse_ch2);
     __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, pulse_ch3);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, pulse_ch4);
 
 
     /* Read encoder */
 
-    status = HAL_I2C_Mem_Read(&hi2c1, 0x36<<1, 0x0E, I2C_MEMADD_SIZE_8BIT, (return_value), 2, 100);
+    status = HAL_I2C_Mem_Read_IT(&hi2c1, 0x36<<1, 0x0E, I2C_MEMADD_SIZE_8BIT, (return_value), 2);
 	raw_angle = (uint16_t)(return_value[0] << 8) + return_value[1];
 	res_angle = 360.0 / 4096.0 * raw_angle;
 
-	if(cnt == 10)
+	if(cnt == 1)
 	{
-		printf("%f \n", res_angle);
+//		printf("%f \n", res_angle);
 //		printf("%d %d %d %d\n", buff_data[0], buff_data[1], buff_data[2], buff_2[0]);
-//		printf("%d\n", buff_data[1]);
+		if(arm_A_raw_current < 1000)
+			printf("%d,\n", arm_A_raw_current);
 		cnt = 0;
 	}
 	cnt ++;
@@ -438,7 +448,7 @@ static void MX_ADC1_Init(void)
   sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
   sConfigInjected.AutoInjectedConv = DISABLE;
   sConfigInjected.QueueInjectedContext = DISABLE;
-  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJEC_T1_TRGO;
+  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJEC_T1_CC4;
   sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_RISING;
   sConfigInjected.InjecOversamplingMode = DISABLE;
   if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
@@ -508,7 +518,7 @@ static void MX_ADC2_Init(void)
   sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
   sConfigInjected.AutoInjectedConv = DISABLE;
   sConfigInjected.QueueInjectedContext = DISABLE;
-  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJEC_T1_TRGO;
+  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJEC_T1_CC4;
   sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_RISING;
   sConfigInjected.InjecOversamplingMode = DISABLE;
   if (HAL_ADCEx_InjectedConfigChannel(&hadc2, &sConfigInjected) != HAL_OK)
@@ -740,7 +750,7 @@ static void MX_OPAMP1_Init(void)
   hopamp1.Init.InternalOutput = DISABLE;
   hopamp1.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
   hopamp1.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
-  hopamp1.Init.PgaGain = OPAMP_PGA_GAIN_16_OR_MINUS_15;
+  hopamp1.Init.PgaGain = OPAMP_PGA_GAIN_8_OR_MINUS_7;
   hopamp1.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
   if (HAL_OPAMP_Init(&hopamp1) != HAL_OK)
   {
@@ -774,7 +784,7 @@ static void MX_OPAMP2_Init(void)
   hopamp2.Init.InternalOutput = DISABLE;
   hopamp2.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
   hopamp2.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
-  hopamp2.Init.PgaGain = OPAMP_PGA_GAIN_16_OR_MINUS_15;
+  hopamp2.Init.PgaGain = OPAMP_PGA_GAIN_8_OR_MINUS_7;
   hopamp2.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
   if (HAL_OPAMP_Init(&hopamp2) != HAL_OK)
   {
@@ -808,7 +818,7 @@ static void MX_OPAMP3_Init(void)
   hopamp3.Init.InternalOutput = DISABLE;
   hopamp3.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
   hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
-  hopamp3.Init.PgaGain = OPAMP_PGA_GAIN_16_OR_MINUS_15;
+  hopamp3.Init.PgaGain = OPAMP_PGA_GAIN_8_OR_MINUS_7;
   hopamp3.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
   if (HAL_OPAMP_Init(&hopamp3) != HAL_OK)
   {
@@ -845,13 +855,13 @@ static void MX_TIM1_Init(void)
   htim1.Init.CounterMode = TIM_COUNTERMODE_CENTERALIGNED1;
   htim1.Init.Period = 4250;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim1.Init.RepetitionCounter = 20;
+  htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
   {
     Error_Handler();
   }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_OC4REF;
   sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
