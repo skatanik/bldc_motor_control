@@ -106,79 +106,15 @@ GenerateClassCluster=0
 DocumentUniqueId=JSUTWQPE
 
 [GeneratedDocument1]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\Design Rule Check - PCB1.html
-DItemRevisionGUID=
-
-[GeneratedDocument2]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1-RoundHoles.TXT
-DItemRevisionGUID=
-
-[GeneratedDocument3]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1-SlotHoles.TXT
-DItemRevisionGUID=
-
-[GeneratedDocument4]
 DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.DRR
 DItemRevisionGUID=
 
-[GeneratedDocument5]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.EXTREP
-DItemRevisionGUID=
-
-[GeneratedDocument6]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.GBL
-DItemRevisionGUID=
-
-[GeneratedDocument7]
+[GeneratedDocument2]
 DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.GBO
 DItemRevisionGUID=
 
-[GeneratedDocument8]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.GBP
-DItemRevisionGUID=
-
-[GeneratedDocument9]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.GBS
-DItemRevisionGUID=
-
-[GeneratedDocument10]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.GM2
-DItemRevisionGUID=
-
-[GeneratedDocument11]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.GM14
-DItemRevisionGUID=
-
-[GeneratedDocument12]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.GTL
-DItemRevisionGUID=
-
-[GeneratedDocument13]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.GTO
-DItemRevisionGUID=
-
-[GeneratedDocument14]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.GTP
-DItemRevisionGUID=
-
-[GeneratedDocument15]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.GTS
-DItemRevisionGUID=
-
-[GeneratedDocument16]
+[GeneratedDocument3]
 DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.LDP
-DItemRevisionGUID=
-
-[GeneratedDocument17]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.REP
-DItemRevisionGUID=
-
-[GeneratedDocument18]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.RUL
-DItemRevisionGUID=
-
-[GeneratedDocument19]
-DocumentPath=Project Outputs for bldc_controller_stm32g4\PCB1.TXT
 DItemRevisionGUID=
 
 [Configuration1]
