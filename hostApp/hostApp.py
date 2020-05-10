@@ -26,6 +26,9 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
         self.chb_desiredPos.clicked.connect(self.chb_desiredPos_clicked)
         self.chb_currentSpeed.clicked.connect(self.chb_currentSpeed_clicked)
         self.chb_desiredSpeed.clicked.connect(self.chb_desiredSpeed_clicked)
+        self.chb_currentIab.clicked.connect(self.chb_currentIab_clicked)
+        self.chb_currentUab.clicked.connect(self.chb_currentUab_clicked)
+        self.chb_currentUdq.clicked.connect(self.chb_currentUdq_clicked)
         self.serialConnected = 0
         self.graphWidget.setBackground('w')
 
@@ -42,22 +45,28 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
         self.chb_iacurr.setStyleSheet("QCheckBox {background: #FF5733;}")
         self.currentBdataLine = pg.PlotCurveItem(pen=pg.mkPen({'color': "2418E3"}), width = 10)
         self.chb_ibcurr.setStyleSheet("QCheckBox {background:#2418E3 }")
-        self.currentCdataLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "C118E3"}), width = 2,name="Red")
+        self.currentCdataLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "C118E3"}), width = 2)
         self.chb_iccurr.setStyleSheet("QCheckBox {background:#C118E3}")
-        self.currentIdLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "18BE3E"}), width = 2, name="Red")
+        self.currentIdLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "18BE3E"}), width = 2)
         self.chb_currentIq.setStyleSheet("QCheckBox {background:#18BE3E}")
-        self.currentIqLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "44B68C"}), width = 2, name="Red")
+        self.currentIqLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "44B68C"}), width = 2)
         self.chb_currentId.setStyleSheet("QCheckBox {background:#44B68C}")
-        self.desiredIqLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "5B3DCA"}), width = 2, name="Red")
+        self.desiredIqLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "5B3DCA"}), width = 2)
         self.chb_desiredIq.setStyleSheet("QCheckBox {background:#5B3DCA}")
-        self.currentPositionLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "C1B717"}), width = 2, name="Red")
+        self.currentPositionLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "C1B717"}), width = 2)
         self.chb_currentPos.setStyleSheet("QCheckBox {background:#C1B717}")
-        self.desiredPositionLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "E70BB1"}), width = 2, name="Red")
+        self.desiredPositionLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "E70BB1"}), width = 2)
         self.chb_desiredPos.setStyleSheet("QCheckBox {background:#E70BB1}")
-        self.currentSpeedLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "A25DDC"}), width = 2, name="Red")
+        self.currentSpeedLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "A25DDC"}), width = 2)
         self.chb_currentSpeed.setStyleSheet("QCheckBox {background:#A25DDC}")
-        self.desiredSpeedLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "55C00F"}), width = 2, name="Red")
+        self.desiredSpeedLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "55C00F"}), width = 2)
         self.chb_desiredSpeed.setStyleSheet("QCheckBox {background:#55C00F}")
+        self.currentIabLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "0BBFBD"}), width = 2)
+        self.chb_currentIab.setStyleSheet("QCheckBox {background:#0BBFBD}")
+        self.currentUabLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "47D562"}), width = 2)
+        self.chb_currentUab.setStyleSheet("QCheckBox {background:#47D562}")
+        self.currentUdqLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "C01BB8"}), width = 2)
+        self.chb_currentUdq.setStyleSheet("QCheckBox {background:#C01BB8}")
 
 
     def searchButtonClicked(self):
@@ -132,6 +141,12 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
             self.currentSpeedLine.setData(self.desiredSpeed)
         if self.chb_desiredSpeed.isChecked():
             self.desiredSpeedLine.setData(self.currentSpeed)
+        if self.chb_currentIab.isChecked():
+            self.currentIabLine.setData(self.currentIab)
+        if self.chb_currentUab.isChecked():
+            self.currentUabLine.setData(self.currentUab)
+        if self.chb_currentUdq.isChecked():
+            self.currentUdqLine.setData(self.currentUdq)
 
         # redraw data lines
 
@@ -154,6 +169,9 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
             self.currentPosition = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
             self.desiredSpeed = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
             self.currentSpeed = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
+            self.currentIab = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
+            self.currentUab = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
+            self.currentUdq = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
             self.runningActive = 1
             self.pb_start.setText('Stop')
             self.le_plotPoints.setDisabled(1)
@@ -186,6 +204,12 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
             self.graphWidget.addItem(self.currentSpeedLine)
         if self.chb_desiredSpeed.isChecked():
             self.graphWidget.addItem(self.desiredSpeedLine)
+        if self.chb_currentIab.isChecked():
+            self.graphWidget.addItem(self.currentIabLine)
+        if self.chb_currentUab.isChecked():
+            self.graphWidget.addItem(self.currentUabLine)
+        if self.chb_currentUdq.isChecked():
+            self.graphWidget.addItem(self.currentUdqLine)
 
     def chb_currentAdata_clicked(self):
         if(self.chb_iacurr.isChecked()):
@@ -267,6 +291,29 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
             self.graphWidget.clear()
             self.redrawLines()
 
+    def chb_currentIab_clicked(self):
+        if (self.chb_currentIab.isChecked()):
+            self.graphWidget.addItem(self.currentIabLine)
+        else:
+            self.graphWidget.removeItem(self.currentIabLine)
+            self.graphWidget.clear()
+            self.redrawLines()
+
+    def chb_currentUab_clicked(self):
+        if (self.chb_currentUab.isChecked()):
+            self.graphWidget.addItem(self.currentUabLine)
+        else:
+            self.graphWidget.removeItem(self.currentUabLine)
+            self.graphWidget.clear()
+            self.redrawLines()
+
+    def chb_currentUdq_clicked(self):
+        if (self.chb_currentUdq.isChecked()):
+            self.graphWidget.addItem(self.currentUdqLine)
+        else:
+            self.graphWidget.removeItem(self.currentUdqLine)
+            self.graphWidget.clear()
+            self.redrawLines()
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

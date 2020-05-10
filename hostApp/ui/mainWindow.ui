@@ -81,44 +81,6 @@
        <string>Reset</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pb_writeConf">
-      <property name="geometry">
-       <rect>
-        <x>11</x>
-        <y>551</y>
-        <width>75</width>
-        <height>40</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>60</width>
-        <height>40</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Write config</string>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pb_readConf">
-      <property name="geometry">
-       <rect>
-        <x>11</x>
-        <y>597</y>
-        <width>75</width>
-        <height>40</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>60</width>
-        <height>40</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Read config</string>
-      </property>
-     </widget>
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
@@ -305,8 +267,8 @@
      <widget class="QComboBox" name="cb_controlType">
       <property name="geometry">
        <rect>
-        <x>100</x>
-        <y>580</y>
+        <x>120</x>
+        <y>560</y>
         <width>99</width>
         <height>30</height>
        </rect>
@@ -332,19 +294,6 @@
         <string>Position control</string>
        </property>
       </item>
-     </widget>
-     <widget class="QPushButton" name="pb_clearPlot">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>460</y>
-        <width>81</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>Clear Plot</string>
-      </property>
      </widget>
      <widget class="QWidget" name="">
       <property name="geometry">
@@ -541,7 +490,7 @@
         <x>10</x>
         <y>240</y>
         <width>102</width>
-        <height>157</height>
+        <height>226</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_19">
@@ -563,6 +512,27 @@
         <widget class="QCheckBox" name="chb_desiredIq">
          <property name="text">
           <string>Desired Iq</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chb_currentIab">
+         <property name="text">
+          <string>Current Iab</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chb_currentUdq">
+         <property name="text">
+          <string>Current Udq</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chb_currentUab">
+         <property name="text">
+          <string>Current Uab</string>
          </property>
         </widget>
        </item>
@@ -600,23 +570,72 @@
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>410</y>
-        <width>101</width>
-        <height>41</height>
+        <y>610</y>
+        <width>158</width>
+        <height>42</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_20">
+      <layout class="QHBoxLayout" name="horizontalLayout_6">
        <item>
-        <widget class="QLabel" name="label_18">
+        <widget class="QPushButton" name="pb_readConf">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
-          <string>Plot points</string>
+          <string>Read config</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="le_plotPoints">
+        <widget class="QPushButton" name="pb_writeConf">
+         <property name="minimumSize">
+          <size>
+           <width>60</width>
+           <height>40</height>
+          </size>
+         </property>
          <property name="text">
-          <string>500</string>
+          <string>Write config</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>530</y>
+        <width>101</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_21">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_20">
+         <item>
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Plot points</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="le_plotPoints">
+           <property name="text">
+            <string>500</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pb_clearPlot">
+         <property name="text">
+          <string>Clear Plot</string>
          </property>
         </widget>
        </item>
