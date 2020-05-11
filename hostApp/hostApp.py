@@ -39,7 +39,7 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
         self.updatePlotTimer = QtCore.QTimer(self)
         self.updatePlotTimer.setInterval(20)
         self.updatePlotTimer.timeout.connect(self.updatePlot)
-        # self.graphWidget.addLegend()
+        self.graphWidget.showGrid(x = True, y = True, alpha = 0.3)
         self.runningActive = 0
         self.currentAdataLine = pg.PlotCurveItem(pen=pg.mkPen({'color': "FF5733"}), width=10, name="current Ia")
         self.chb_iacurr.setStyleSheet("QCheckBox {background: #FF5733;}")
@@ -88,7 +88,6 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
             self.serialPort = QtSerialPort.QSerialPort(selectedPort,
                                                 baudRate=QtSerialPort.QSerialPort.Baud115200,
                                                readyRead=self.serialReceive)
-            flagOpen = 1
             try:
                 self.serialPort.open(QtCore.QIODevice.ReadWrite)
             except:
