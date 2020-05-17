@@ -1,0 +1,151 @@
+#include "bsp_functions.h"
+
+extern ADC_HandleTypeDef hadc1;
+extern ADC_HandleTypeDef hadc2;
+
+extern COMP_HandleTypeDef hcomp1;
+extern COMP_HandleTypeDef hcomp2;
+extern COMP_HandleTypeDef hcomp4;
+
+extern DAC_HandleTypeDef hdac1;
+
+extern FDCAN_HandleTypeDef hfdcan1;
+
+extern I2C_HandleTypeDef hi2c1;
+
+extern OPAMP_HandleTypeDef hopamp1;
+extern OPAMP_HandleTypeDef hopamp2;
+extern OPAMP_HandleTypeDef hopamp3;
+
+extern SPI_HandleTypeDef hspi1;
+
+extern TIM_HandleTypeDef htim1;
+
+extern UART_HandleTypeDef huart1;
+
+uint16_t arm_A_raw_current;
+uint16_t arm_B_raw_current;
+uint16_t arm_C_raw_current;
+
+extern globalState_typedef globalState;
+
+void bspStart()
+{
+    HAL_COMP_Start(&hcomp1);
+	HAL_COMP_Start(&hcomp2);
+	HAL_COMP_Start(&hcomp4);
+	HAL_OPAMP_Start(&hopamp1);
+	HAL_OPAMP_Start(&hopamp2);
+	HAL_OPAMP_Start(&hopamp3);
+
+	__HAL_ADC_ENABLE_IT(&hadc1,ADC_IT_JEOS);
+	__HAL_ADC_ENABLE_IT(&hadc2,ADC_IT_JEOS);
+
+
+	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+	HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
+	HAL_ADCEx_InjectedStart_IT(&hadc1);
+	HAL_ADCEx_InjectedStart_IT(&hadc2);
+	HAL_ADC_Start_IT(&hadc1);
+	HAL_ADC_Start_IT(&hadc2);
+	
+	__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
+	HAL_TIM_Base_Start(&htim1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_4);
+
+    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
+    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
+    HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
+
+//	__HAL_ADC_DISABLE_IT(&hadc1, ADC_IT_JEOC);
+//	__HAL_ADC_DISABLE_IT(&hadc2, ADC_IT_JEOC);
+//	__HAL_ADC_ENABLE_IT(&hadc1, ADC_IT_JEOS);
+
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, PWM_PERIOD);
+}
+
+void setPWM1(uint16_t val)
+{
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, val);
+}
+
+void setPWM2(uint16_t val)
+{
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, val);
+}
+
+void setPWM3(uint16_t val)
+{
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, val);
+}
+
+void sendUARTArray(uint8_t * data, uint16_t size)
+{
+    HAL_UART_Transmit_DMA(&huart1, data, size);
+}
+
+void sendData(uint8_t * data, uint16_t size)
+{
+#ifdef MAIN_IFACE_UART
+    sendUARTArray(data, size);
+#else
+
+#endif
+}
+
+void startDataReceiving(uint8_t * data, uint16_t size)
+{
+    HAL_UART_Receive_DMA(&huart1, data, size);
+}
+
+int getPositionData(uint8_t * pos)
+{
+    uint8_t return_value[2];
+    if(HAL_I2C_Mem_Read_IT(&hi2c1, 0x36<<1, 0x0E, I2C_MEMADD_SIZE_8BIT, (pos), 2) == HAL_OK)
+    {
+        return 1;
+    } else
+    {
+        return 0;
+    }
+}
+
+/**
+ *  CALLBACKS
+ */
+
+void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+
+	if(hadc->Instance == ADC1) //check if the interrupt comes from ACD1
+    {
+        globalState.rawCurrentA = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1);
+		globalState.rawCurrentC = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_4);
+		
+//		__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
+    }
+	if(hadc->Instance == ADC2) //check if the interrupt comes from ACD2
+    {
+       globalState.rawCurrentB = HAL_ADCEx_InjectedGetValue(&hadc2, ADC_INJECTED_RANK_1);
+    }
+
+
+}
+
+void HAL_TIMEx_Break2Callback(TIM_HandleTypeDef *htim)
+{
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 0);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_2, 0);
+    __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_3, 0);
+
+	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
+
+    HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_1);
+    HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_2);
+    HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_3);
+}
