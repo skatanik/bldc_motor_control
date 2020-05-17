@@ -141,6 +141,9 @@ void updateControl()
 //		sprintf(messageString,"%f \n", res_angle);
 //		sprintf(messageString,"%d %d %d %d\n", buff_data[0], buff_data[1], buff_data[2], buff_2[0]);
 //		sprintf(messageString,"%d; %d; %d;\n", arm_A_raw_current, arm_B_raw_current, arm_C_raw_current);
+		globalState.rawCurrentA = globalState.rawCurrent[0];
+		globalState.rawCurrentB = globalState.rawCurrent[3];
+		globalState.rawCurrentC = globalState.rawCurrent[1];
         composeRegularMessage(messageString, &messageLength);
         sendData(messageString, messageLength);
 		cnt = 0;

@@ -46,8 +46,9 @@ void bspStart()
 	HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
 	HAL_ADCEx_InjectedStart_IT(&hadc1);
 	HAL_ADCEx_InjectedStart_IT(&hadc2);
-	HAL_ADC_Start_IT(&hadc1);
-	HAL_ADC_Start_IT(&hadc2);
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)globalState.rawCurrent, 3);
+	HAL_ADC_Start_DMA(&hadc2, (uint32_t *)&globalState.rawCurrent[3], 1);
+//	HAL_ADC_Start_IT(&hadc2);
 	
 	__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
 	HAL_TIM_Base_Start(&htim1);
@@ -117,23 +118,20 @@ int getPositionData(uint8_t * pos)
  *  CALLBACKS
  */
 
-void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
-
-	if(hadc->Instance == ADC1) //check if the interrupt comes from ACD1
-    {
-        globalState.rawCurrentA = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1);
-		globalState.rawCurrentC = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_4);
-		
-//		__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
-    }
-	if(hadc->Instance == ADC2) //check if the interrupt comes from ACD2
-    {
-       globalState.rawCurrentB = HAL_ADCEx_InjectedGetValue(&hadc2, ADC_INJECTED_RANK_1);
-    }
-
-
-}
+//void HAL_ADCEx_InjectedConvCpltCallback(ADC_HandleTypeDef *hadc)
+//{
+//	if(hadc->Instance == ADC1) //check if the interrupt comes from ACD1
+//    {
+//        globalState.rawCurrentA = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1);
+//		globalState.rawCurrentC = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_4);
+//		
+////		__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
+//    }
+//	if(hadc->Instance == ADC2) //check if the interrupt comes from ACD2
+//    {
+//       globalState.rawCurrentB = HAL_ADCEx_InjectedGetValue(&hadc2, ADC_INJECTED_RANK_1);
+//    }
+//}HAL_ADC_ConvCpltCallback
 
 void HAL_TIMEx_Break2Callback(TIM_HandleTypeDef *htim)
 {

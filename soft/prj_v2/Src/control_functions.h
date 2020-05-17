@@ -5,6 +5,7 @@
 typedef struct
 {
     uint16_t rawPosition;
+	uint16_t rawCurrent[4];
     uint16_t rawCurrentA;
     uint16_t rawCurrentB;
     uint16_t rawCurrentC;
