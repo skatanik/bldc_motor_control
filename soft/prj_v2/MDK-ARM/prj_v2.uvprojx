@@ -358,9 +358,9 @@
             <useXO>0</useXO>
             <VariousControls>
               <MiscControls/>
-              <Define>USE_HAL_DRIVER,STM32G431xx,USE_HAL_DRIVER,STM32G431xx</Define>
+              <Define>USE_HAL_DRIVER,STM32G431xx,USE_HAL_DRIVER,STM32G431xx,USE_FULL_LL_DRIVER</Define>
               <Undefine/>
-              <IncludePath>../Inc;                          ../Drivers/STM32G4xx_HAL_Driver/Inc;                          ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;                          ../Drivers/CMSIS/Device/ST/STM32G4xx/Include;                          ../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Inc;                               ../Drivers/STM32G4xx_HAL_Driver/Inc;                               ../Drivers/STM32G4xx_HAL_Driver/Inc/Legacy;                               ../Drivers/CMSIS/Device/ST/STM32G4xx/Include;                               ../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -436,6 +436,16 @@
           <GroupName>Drivers/STM32G4xx_HAL_Driver</GroupName>
           <Files>
             <File>
+              <FileName>stm32g4xx_ll_utils.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_utils.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32g4xx_ll_exti.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_exti.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32g4xx_hal_gpio.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_gpio.c</FilePath>
@@ -459,6 +469,21 @@
               <FileName>stm32g4xx_hal_comp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_comp.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32g4xx_ll_cordic.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_cordic.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32g4xx_ll_gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_gpio.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32g4xx_ll_dma.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_ll_dma.c</FilePath>
             </File>
             <File>
               <FileName>stm32g4xx_hal_dac.c</FileName>

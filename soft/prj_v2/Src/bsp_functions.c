@@ -31,6 +31,15 @@ extern globalState_typedef globalState;
 
 void bspStart()
 {
+
+    LL_CORDIC_Config(CORDIC, LL_CORDIC_FUNCTION_SINE,   /* cosine function */
+                           LL_CORDIC_PRECISION_6CYCLES, /* max precision for q1.31 cosine */
+                           LL_CORDIC_SCALE_0,           /* no scale */
+                           LL_CORDIC_NBWRITE_1,         /* One input data: angle. Second input data (modulus) is 1 after cordic reset */
+                           LL_CORDIC_NBREAD_1,          /* Two output data: cosine, then sine */
+                           LL_CORDIC_INSIZE_16BITS,     /* q1.31 format for input data */
+                           LL_CORDIC_OUTSIZE_16BITS);   /* q1.31 format for output data */
+
     HAL_COMP_Start(&hcomp1);
 	HAL_COMP_Start(&hcomp2);
 	HAL_COMP_Start(&hcomp4);
@@ -38,19 +47,10 @@ void bspStart()
 	HAL_OPAMP_Start(&hopamp2);
 	HAL_OPAMP_Start(&hopamp3);
 
-	__HAL_ADC_ENABLE_IT(&hadc1,ADC_IT_JEOS);
-	__HAL_ADC_ENABLE_IT(&hadc2,ADC_IT_JEOS);
-
-
-	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
-	HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
-	HAL_ADCEx_InjectedStart_IT(&hadc1);
-	HAL_ADCEx_InjectedStart_IT(&hadc2);
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)globalState.rawCurrent, 3);
 	HAL_ADC_Start_DMA(&hadc2, (uint32_t *)&globalState.rawCurrent[3], 1);
-//	HAL_ADC_Start_IT(&hadc2);
-	
-	__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
+
+//	__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
 	HAL_TIM_Base_Start(&htim1);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
@@ -60,10 +60,6 @@ void bspStart()
     HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
     HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
-
-//	__HAL_ADC_DISABLE_IT(&hadc1, ADC_IT_JEOC);
-//	__HAL_ADC_DISABLE_IT(&hadc2, ADC_IT_JEOC);
-//	__HAL_ADC_ENABLE_IT(&hadc1, ADC_IT_JEOS);
 
 	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, PWM_PERIOD);
 }
@@ -124,7 +120,7 @@ int getPositionData(uint8_t * pos)
 //    {
 //        globalState.rawCurrentA = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1);
 //		globalState.rawCurrentC = HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_4);
-//		
+//
 ////		__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
 //    }
 //	if(hadc->Instance == ADC2) //check if the interrupt comes from ACD2
