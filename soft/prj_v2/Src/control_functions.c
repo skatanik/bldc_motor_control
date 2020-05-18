@@ -64,6 +64,8 @@ void initControl()
 void updateControl()
 {
     HAL_Delay(5);
+	
+	fp_Vamp = 0xddb2 ; // q16 amplitude 0xDDB2 max
     fp_Uv_ang += 182;
 	if(fp_Uv_ang >= 0xFFFF)
 		fp_Uv_ang = 0;
@@ -111,48 +113,25 @@ mechanical 0.0909 degree per one electrical degree
 	while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
 		
     sinB = (uint16_t)LL_CORDIC_ReadData(CORDIC);
-//    cosB = LL_CORDIC_ReadData(CORDIC);
 
 	fp_cordic_inp = (0x7fff << 16) + (fp_sixtyDeg - fp_betaAng);
     LL_CORDIC_WriteData(CORDIC, fp_cordic_inp);
 	while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
 		
     sin60mB = (uint16_t)LL_CORDIC_ReadData(CORDIC);
-//    cos60mB = LL_CORDIC_ReadData(CORDIC);
 
-	fp_Vamp = 0xddb2 ; // q16 amplitude 0xDDB2 max
     fp_firstPart = (fp_Vamp*fp_tConst) >> 16; // q2.16
-    // sinB = (uint16_t)floor(sin((Beta_ang)*(float)0.0174532925199) * 0xffff);
-    // sin60mB = (uint16_t)floor(sin((60.0-Beta_ang)*(float)0.0174532925199) * 0xffff);
     fp_t_a = (PWM_MAX_VAL*((sin60mB * fp_firstPart)>> 15)) >> 16 ;
     fp_t_b = (PWM_MAX_VAL*((sinB * fp_firstPart)>> 15)) >> 16 ;
     fp_t_zero = PWM_MAX_VAL - fp_t_a - fp_t_b;
 
-
-    /* Calculate t_a, t_b, t_0*/
-    eq_first_part = coeff_timing * PWM_MAX_VAL * Uv_ampl;
-
-    t_a = eq_first_part * sin((60.0-Beta_ang)*(float)0.0174532925199);
-    t_b = eq_first_part * sin((Beta_ang)*(float)0.0174532925199);
-    t_zero = PWM_MAX_VAL - t_a - t_b;
-
-    // t_a     = Uv_ampl * PWM_MAX_VAL * sin((60.0-Beta_ang)*(float)0.0035367765);
-    // t_b     = Uv_ampl * PWM_MAX_VAL * sin((Beta_ang)*(float)0.0035367765);
-    // t_zero  = PWM_MAX_VAL - t_a - t_b;
-
     if(t_zero < 0)
         t_zero = 0;
 
-    /* Set pulse values */
-    // t1 = (uint16_t) floor(t_a + t_b + t_zero/2.0);
-    // t2 = (uint16_t) floor(t_b + t_zero/2.0);
-    // t3 = (uint16_t) floor(t_a + t_zero/2.0);
-    // t4 = (uint16_t) floor(t_zero/2.0);
-
-    t1 = (uint16_t) floor(fp_t_a + fp_t_b + (fp_t_zero >> 1));
-    t2 = (uint16_t) floor(fp_t_b + (fp_t_zero >> 1));
-    t3 = (uint16_t) floor(fp_t_a + (fp_t_zero >> 1));
-    t4 = (uint16_t) floor(fp_t_zero >> 1);
+    t1 = (uint16_t) (fp_t_a + fp_t_b + (fp_t_zero >> 1));
+    t2 = (uint16_t) (fp_t_b + (fp_t_zero >> 1));
+    t3 = (uint16_t) (fp_t_a + (fp_t_zero >> 1));
+    t4 = (uint16_t) (fp_t_zero >> 1);
 
     switch (sector_number)
     {
