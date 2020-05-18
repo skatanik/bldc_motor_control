@@ -7,6 +7,7 @@ import numpy as np
 from ui import mainWindow
 import sys
 
+
 class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
     def __init__(self):
         super(hostApp, self).__init__()
@@ -29,6 +30,7 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
         self.chb_currentIab.clicked.connect(self.chb_currentIab_clicked)
         self.chb_currentUab.clicked.connect(self.chb_currentUab_clicked)
         self.chb_currentUdq.clicked.connect(self.chb_currentUdq_clicked)
+        self.pb_clearData.clicked.connect(self.pb_clearData_clicked)
         self.serialConnected = 0
         self.graphWidget.setBackground('w')
 
@@ -68,6 +70,8 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
         self.currentUdqLine = pg.PlotCurveItem(clear=True, pen=pg.mkPen({'color': "C01BB8"}), width = 2)
         self.chb_currentUdq.setStyleSheet("QCheckBox {background:#C01BB8}")
 
+        self.serialData = QtCore.QByteArray()
+
 
     def searchButtonClicked(self):
         for ind in range(self.cb_ports.__len__()):
@@ -77,9 +81,11 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
         if(self.cb_ports.__len__()):
             self.lb_status.setText(str(self.cb_ports.__len__()) + " port(s) found")
             self.lb_status.setStyleSheet("QLabel {color : green; }")
+            self.pb_connect.setEnabled(1)
         else:
             self.lb_status.setText("No ports were found")
             self.lb_status.setStyleSheet("QLabel {color : red; }")
+            self.pb_connect.setEnabled(0)
 
 
     def connectButtonClicked(self):
@@ -87,7 +93,7 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
             selectedPort = self.cb_ports.currentText()
             self.serialPort = QtSerialPort.QSerialPort(selectedPort,
                                                 baudRate=QtSerialPort.QSerialPort.Baud115200,
-                                               readyRead=self.serialReceive)
+                                               readyRead=self.serialReceiveThread)
             try:
                 self.serialPort.open(QtCore.QIODevice.ReadWrite)
             except:
@@ -99,30 +105,72 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
                 self.lb_status.setStyleSheet("QLabel {color : green; }")
                 self.serialConnected = 1
                 self.pb_connect.setText("Disconnect")
+                self.pb_start.setEnabled(1)
+                plotsize = int(self.le_plotPoints.text())
+                self.currentAdata = np.zeros([plotsize])
+                self.currentBdata = np.zeros([plotsize])
+                self.currentCdata = np.zeros([plotsize])
+                self.currentCdataRaw = np.zeros([plotsize])
+                self.currentAbsoluteAngle = np.zeros([plotsize])
+                self.currentSpeed = np.zeros([plotsize])
+                self.desireSpeed = np.zeros([plotsize])
+                self.currentIq = np.zeros([plotsize])
+                self.currentId = np.zeros([plotsize])
+                self.desiredIq = np.zeros([plotsize])
+                self.desiredPosition = np.zeros([plotsize])
+                self.currentPosition = np.zeros([plotsize])
+                self.desiredSpeed = np.zeros([plotsize])
+                self.currentSpeed = np.zeros([plotsize])
+                self.currentIab = np.zeros([plotsize])
+                self.currentUab = np.zeros([plotsize])
+                self.currentUdq = np.zeros([plotsize])
             else:
                 self.lb_status.setText("Can't open " + selectedPort)
                 self.lb_status.setStyleSheet("QLabel {color : red; }")
         else:
             self.serialConnected = 0
+            self.pb_start.setEnabled(0)
             self.pb_connect.setText("Connect")
             self.lb_status.setText(self.cb_ports.currentText() + " closed")
             self.lb_status.setStyleSheet("QLabel {color : green; }")
             self.serialPort.close()
 
     def serialReceiveThread(self):
-        # receive data parse, update data arrays
-        print("data")
+        if(self.serialPort.bytesAvailable()):
+            if(self.runningActive == 1):
+                ind = 0
+                self.serialData = self.serialData.append(self.serialPort.readAll())
+                code = b'H'
+                for byte in self.serialData:
+                    if(byte == code):
+                        break
+                    ind = ind + 1
+
+                self.serialData.remove(0, ind)
+                while(self.serialData.size() >= 9):
+                    posData = int.from_bytes(self.serialData[1], "little")*256 + int.from_bytes(self.serialData[2], "little")
+                    currA  = int.from_bytes(self.serialData[3], "little")*256 + int.from_bytes(self.serialData[4], "little")
+                    currB = int.from_bytes(self.serialData[5], "little")*256 + int.from_bytes(self.serialData[6], "little")
+                    currC = int.from_bytes(self.serialData[7], "little")*256 + int.from_bytes(self.serialData[8], "little")
+                    self.serialData.remove(0, 9)
+                    self.currentAdata = np.append(self.currentAdata, currA)
+                    self.currentBdata = np.append(self.currentBdata, currB)
+                    self.currentCdata = np.append(self.currentCdata, currC)
+                    self.currentPosition = np.append(self.currentPosition, posData)
+                    self.currentAdata = self.currentAdata[1:]
+                    self.currentBdata = self.currentBdata[1:]
+                    self.currentCdata = self.currentCdata[1:]
+                    self.currentPosition = self.currentPosition[1:]
+
+            else:
+                self.serialPort.readAll()
+
+
 
     def updatePlot(self):
-        plotsize = int(self.le_plotPoints.text())
-        # self.graphWidget.clear()
         if self.chb_iacurr.isChecked():
-            self.currentAdata = self.currentAdata[1:]
-            self.currentAdata = np.append(self.currentAdata,np.random.normal(size=1))
             self.currentAdataLine.setData(self.currentAdata)
         if self.chb_ibcurr.isChecked():
-            self.currentBdata = self.currentBdata[1:]
-            self.currentBdata = np.append(self.currentBdata, np.random.normal(size=1))
             self.currentBdataLine.setData(self.currentBdata)
         if self.chb_iccurr.isChecked():
             self.currentCdataLine.setData(self.currentCdata)
@@ -154,26 +202,38 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
             # data arrays
             plotsize = int(self.le_plotPoints.text())
 
-            self.currentAdata = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentBdata = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentCdata = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentCdataRaw = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentAbsoluteAngle = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentSpeed = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.desireSpeed = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentIq = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentId = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.desiredIq = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.desiredPosition = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentPosition = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.desiredSpeed = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentSpeed = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentIab = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentUab = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
-            self.currentUdq = np.random.normal(size = plotsize) #np.zeros([1, plotsize])
+            if(self.currentAdata.shape[0] < plotsize):
+                self.currentAdata = np.append(self.currentAdata, np.zeros([plotsize-self.currentAdata.shape[0]]))
+            if(self.currentBdata.shape[0] < plotsize):
+                self.currentBdata = np.append(self.currentBdata, np.zeros([plotsize-self.currentBdata.shape[0]]))
+            if(self.currentCdata.shape[0] < plotsize):
+                self.currentCdata = np.append(self.currentCdata, np.zeros([plotsize-self.currentCdata.shape[0]]))
+            if(self.currentIq.shape[0] < plotsize):
+                self.currentIq = np.append(self.currentIq, np.zeros([plotsize-self.currentIq.shape[0]]))
+            if(self.currentId.shape[0] < plotsize):
+                self.currentId = np.append(self.currentId, np.zeros([plotsize-self.currentId.shape[0]]))
+            if(self.desiredIq.shape[0] < plotsize):
+                self.desiredIq = np.append(self.desiredIq, np.zeros([plotsize-self.desiredIq.shape[0]]))
+            if(self.currentPosition.shape[0] < plotsize):
+                self.currentPosition = np.append(self.currentPosition, np.zeros([plotsize-self.currentPosition.shape[0]]))
+            if(self.desiredPosition.shape[0] < plotsize):
+                self.desiredPosition = np.append(self.desiredPosition, np.zeros([plotsize-self.desiredPosition.shape[0]]))
+            if(self.desiredSpeed.shape[0] < plotsize):
+                self.desiredSpeed = np.append(self.desiredSpeed, np.zeros([plotsize-self.desiredSpeed.shape[0]]))
+            if(self.currentSpeed.shape[0] < plotsize):
+                self.currentSpeed = np.append(self.currentSpeed, np.zeros([plotsize-self.currentSpeed.shape[0]]))
+            if(self.currentIab.shape[0] < plotsize):
+                self.currentIab = np.append(self.currentIab, np.zeros([plotsize-self.currentIab.shape[0]]))
+            if(self.currentUab.shape[0] < plotsize):
+                self.currentUab = np.append(self.currentUab, np.zeros([plotsize-self.currentUab.shape[0]]))
+            if(self.currentUdq.shape[0] < plotsize):
+                self.currentUdq = np.append(self.currentUdq, np.zeros([plotsize-self.currentUdq.shape[0]]))
+
+
             self.runningActive = 1
             self.pb_start.setText('Stop')
             self.le_plotPoints.setDisabled(1)
+            self.graphWidget.setXRange(0, plotsize, padding=0)
             # self.graphWidget.clear()
             self.updatePlotTimer.start()
         else:
@@ -313,6 +373,27 @@ class hostApp(mainWindow.Ui_MainWindow, QtWidgets.QMainWindow):
             self.graphWidget.removeItem(self.currentUdqLine)
             self.graphWidget.clear()
             self.redrawLines()
+
+    def pb_clearData_clicked(self):
+        plotsize = int(self.le_plotPoints.text())
+        self.currentAdata = np.zeros([plotsize])
+        self.currentBdata = np.zeros([plotsize])
+        self.currentCdata = np.zeros([plotsize])
+        self.currentCdataRaw = np.zeros([plotsize])
+        self.currentAbsoluteAngle = np.zeros([plotsize])
+        self.currentSpeed = np.zeros([plotsize])
+        self.desireSpeed = np.zeros([plotsize])
+        self.currentIq = np.zeros([plotsize])
+        self.currentId = np.zeros([plotsize])
+        self.desiredIq = np.zeros([plotsize])
+        self.desiredPosition = np.zeros([plotsize])
+        self.currentPosition = np.zeros([plotsize])
+        self.desiredSpeed = np.zeros([plotsize])
+        self.currentSpeed = np.zeros([plotsize])
+        self.currentIab = np.zeros([plotsize])
+        self.currentUab = np.zeros([plotsize])
+        self.currentUdq = np.zeros([plotsize])
+
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)

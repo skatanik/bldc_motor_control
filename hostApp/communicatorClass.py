@@ -1,3 +1,25 @@
+############################################################################################
+#
+#         +-------------+----------------+----------------+-------------------+
+#         | Preambule   |                |                |                   |
+#         | 0x48        |   cmd word     |   address      |  1..N bytes       |
+#         |             |                |                |                   |
+#         +-----------------------------------------------+-------------------+
+#                       |                |
+#                       |                |
+#    +------------------+                |
+#    |                              +----+
+#    |                              |
+#    +---------------+--------------+
+#    |               |              |
+#    |     2 bit     |  4 bits      |
+#    |    cmd type   |  data size   |
+#    |               |    bytes     |
+#    +---------------+--------------+
+#
+############################################################################################
+
+
 from PyQt5 import QtCore, QtSerialPort
 
 class communicatorClass(QtSerialPort.QSerialPort):
@@ -6,8 +28,13 @@ class communicatorClass(QtSerialPort.QSerialPort):
 
     def openConnection(self, portName):
         self.setBaudRate(QtSerialPort.QSerialPort.Baud115200)
-        self.setPort(portName)
-        self.open(QtCore.QIODevice.ReadWrite)
+        self.setPortName(portName)
+        try:
+            self.open(QtCore.QIODevice.ReadWrite)
+            return 1
+        except:
+            print("Can't open " + portName)
+            return -1
 
     def closeConnection(self):
         if(self.isOpen()):

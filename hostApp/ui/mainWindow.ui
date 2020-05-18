@@ -9,19 +9,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1000</width>
+    <width>1500</width>
     <height>800</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>1000</width>
+    <width>1500</width>
     <height>800</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1000</width>
+    <width>1500</width>
     <height>800</height>
    </size>
   </property>
@@ -34,8 +34,8 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>1001</width>
-      <height>781</height>
+      <width>1501</width>
+      <height>791</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -50,12 +50,15 @@
        <rect>
         <x>140</x>
         <y>0</y>
-        <width>841</width>
+        <width>1351</width>
         <height>541</height>
        </rect>
       </property>
      </widget>
      <widget class="QPushButton" name="pb_start">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>710</x>
@@ -295,100 +298,33 @@
        </property>
       </item>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QDoubleSpinBox" name="doubleSpinBox">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>120</y>
-        <width>98</width>
-        <height>111</height>
+        <y>500</y>
+        <width>101</width>
+        <height>22</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <widget class="QLabel" name="label">
-         <property name="text">
-          <string>Data to acquire</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chb_rawdata">
-         <property name="text">
-          <string>Raw data</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <widget class="QCheckBox" name="chb_iacurr">
-           <property name="text">
-            <string>Current Ia</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="chb_ibcurr">
-           <property name="text">
-            <string>Current Ib</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="chb_iccurr">
-           <property name="text">
-            <string>Current Ic</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QLabel" name="lb_boardStatus">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>10</y>
-        <width>121</width>
-        <height>103</height>
+        <x>710</x>
+        <y>730</y>
+        <width>111</width>
+        <height>16</height>
        </rect>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_5">
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QPushButton" name="pb_searchPort">
-           <property name="text">
-            <string>Search ports</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="pb_connect">
-           <property name="text">
-            <string>Connect</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QComboBox" name="cb_ports"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="lb_status">
-           <property name="text">
-            <string>Disconnected</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-      </layout>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Board offline</string>
+      </property>
      </widget>
      <widget class="QWidget" name="">
       <property name="geometry">
@@ -569,6 +505,141 @@
      <widget class="QWidget" name="">
       <property name="geometry">
        <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>121</width>
+        <height>103</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QPushButton" name="pb_searchPort">
+           <property name="text">
+            <string>Search ports</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pb_connect">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Connect</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QComboBox" name="cb_ports"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="lb_status">
+           <property name="text">
+            <string>Disconnected</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>120</y>
+        <width>98</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>Data to acquire</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chb_rawdata">
+         <property name="text">
+          <string>Raw data</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QCheckBox" name="chb_iacurr">
+           <property name="text">
+            <string>Current Ia</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chb_ibcurr">
+           <property name="text">
+            <string>Current Ib</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="chb_iccurr">
+           <property name="text">
+            <string>Current Ic</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>530</y>
+        <width>101</width>
+        <height>72</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_21">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_20">
+         <item>
+          <widget class="QLabel" name="label_18">
+           <property name="text">
+            <string>Plot points</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="le_plotPoints">
+           <property name="text">
+            <string>2000</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pb_clearData">
+         <property name="text">
+          <string>Clear Data</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
         <x>10</x>
         <y>610</y>
         <width>158</width>
@@ -604,43 +675,6 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>530</y>
-        <width>101</width>
-        <height>71</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_21">
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_20">
-         <item>
-          <widget class="QLabel" name="label_18">
-           <property name="text">
-            <string>Plot points</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="le_plotPoints">
-           <property name="text">
-            <string>500</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pb_clearPlot">
-         <property name="text">
-          <string>Clear Plot</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
@@ -654,7 +688,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1000</width>
+     <width>1500</width>
      <height>21</height>
     </rect>
    </property>
