@@ -22,6 +22,8 @@ extern SPI_HandleTypeDef hspi1;
 extern TIM_HandleTypeDef htim1;
 
 extern UART_HandleTypeDef huart1;
+extern DMA_HandleTypeDef hdma_usart1_tx;
+extern DMA_HandleTypeDef hdma_usart1_rx;
 
 uint16_t arm_A_raw_current;
 uint16_t arm_B_raw_current;
@@ -40,12 +42,20 @@ void bspStart()
                            LL_CORDIC_INSIZE_16BITS,     /* q1.31 format for input data */
                            LL_CORDIC_OUTSIZE_16BITS);   /* q1.31 format for output data */
 
+	HAL_UART_Receive_DMA(&huart1, globalState.receivedData, 4);
+	__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
+
     HAL_COMP_Start(&hcomp1);
 	HAL_COMP_Start(&hcomp2);
 	HAL_COMP_Start(&hcomp4);
 	HAL_OPAMP_Start(&hopamp1);
 	HAL_OPAMP_Start(&hopamp2);
 	HAL_OPAMP_Start(&hopamp3);
+
+//	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+//	HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
+
+	HAL_Delay(10);
 
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)globalState.rawCurrent, 3);
 	HAL_ADC_Start_DMA(&hadc2, (uint32_t *)&globalState.rawCurrent[3], 1);
@@ -142,4 +152,9 @@ void HAL_TIMEx_Break2Callback(TIM_HandleTypeDef *htim)
     HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_1);
     HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Stop(&htim1, TIM_CHANNEL_3);
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	globalState.dataReady = 1;
 }

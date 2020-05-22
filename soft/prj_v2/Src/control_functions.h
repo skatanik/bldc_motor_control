@@ -19,6 +19,14 @@ typedef struct
     uint8_t sendPwmChannel2Val;
     uint8_t sendPwmChannel3Val;
 
+	uint8_t receivedData [256];
+	uint8_t dataReady;
+
+    // control values
+    uint16_t desiredSpeed;
+    uint8_t runningEnabled;
+    uint8_t sendDataEnabled;
+
 } globalState_typedef;
 
 void initControl();

@@ -803,9 +803,9 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* htim_pwm)
     /* Peripheral clock enable */
     __HAL_RCC_TIM1_CLK_ENABLE();
     /* TIM1 interrupt Init */
-    HAL_NVIC_SetPriority(TIM1_BRK_TIM15_IRQn, 4, 1);
+    HAL_NVIC_SetPriority(TIM1_BRK_TIM15_IRQn, 2, 0);
     HAL_NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
-    HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 3, 0);
+    HAL_NVIC_SetPriority(TIM1_UP_TIM16_IRQn, 2, 1);
     HAL_NVIC_EnableIRQ(TIM1_UP_TIM16_IRQn);
   /* USER CODE BEGIN TIM1_MspInit 1 */
 
@@ -985,7 +985,7 @@ void HAL_UART_MspInit(UART_HandleTypeDef* huart)
     hdma_usart1_rx.Init.MemInc = DMA_MINC_ENABLE;
     hdma_usart1_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
     hdma_usart1_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-    hdma_usart1_rx.Init.Mode = DMA_NORMAL;
+    hdma_usart1_rx.Init.Mode = DMA_CIRCULAR;
     hdma_usart1_rx.Init.Priority = DMA_PRIORITY_LOW;
     if (HAL_DMA_Init(&hdma_usart1_rx) != HAL_OK)
     {

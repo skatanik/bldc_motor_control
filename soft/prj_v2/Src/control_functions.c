@@ -44,6 +44,9 @@ uint8_t messageString[128] = {0};
 uint16_t messageLength;
 
 globalState_typedef globalState;
+uint8_t rcvMsgInd = 0;
+uint8_t controlByte = 0;
+uint16_t dataBytes = 0;
 
 void initControl()
 {
@@ -63,10 +66,10 @@ void initControl()
 
 void updateControl()
 {
-    HAL_Delay(5);
-	
-	fp_Vamp = 0xddb2 ; // q16 amplitude 0xDDB2 max
-    fp_Uv_ang += 182;
+    HAL_Delay(1);
+
+	fp_Vamp = 0x4fff ; // q16 amplitude 0xDDB2 max
+    fp_Uv_ang += 182*5; // 1 degree 182
 	if(fp_Uv_ang >= 0xFFFF)
 		fp_Uv_ang = 0;
 
@@ -108,25 +111,22 @@ mechanical 0.0909 degree per one electrical degree
 1 digit = 0.087890625 degree
 */
 	fp_cordic_inp = (0x7fff << 16) + fp_betaAng;
-	
+
 	LL_CORDIC_WriteData(CORDIC, fp_cordic_inp);
 	while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
-		
+
     sinB = (uint16_t)LL_CORDIC_ReadData(CORDIC);
 
 	fp_cordic_inp = (0x7fff << 16) + (fp_sixtyDeg - fp_betaAng);
     LL_CORDIC_WriteData(CORDIC, fp_cordic_inp);
 	while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
-		
+
     sin60mB = (uint16_t)LL_CORDIC_ReadData(CORDIC);
 
     fp_firstPart = (fp_Vamp*fp_tConst) >> 16; // q2.16
     fp_t_a = (PWM_MAX_VAL*((sin60mB * fp_firstPart)>> 15)) >> 16 ;
     fp_t_b = (PWM_MAX_VAL*((sinB * fp_firstPart)>> 15)) >> 16 ;
     fp_t_zero = PWM_MAX_VAL - fp_t_a - fp_t_b;
-
-    if(t_zero < 0)
-        t_zero = 0;
 
     t1 = (uint16_t) (fp_t_a + fp_t_b + (fp_t_zero >> 1));
     t2 = (uint16_t) (fp_t_b + (fp_t_zero >> 1));
@@ -182,9 +182,9 @@ mechanical 0.0909 degree per one electrical degree
 
 
     /* Set timer pulse */
-    setPWM1(globalState.pwmChannel1Val);
-    setPWM2(globalState.pwmChannel2Val);
-    setPWM3(globalState.pwmChannel3Val);
+//    setPWM1(globalState.pwmChannel1Val);
+//    setPWM2(globalState.pwmChannel2Val);
+//    setPWM3(globalState.pwmChannel3Val);
 
     /* Read encoder */
 
@@ -197,17 +197,51 @@ mechanical 0.0909 degree per one electrical degree
 //		sprintf(messageString,"%f \n", res_angle);
 //		sprintf(messageString,"%d %d %d %d\n", buff_data[0], buff_data[1], buff_data[2], buff_2[0]);
 //		sprintf(messageString,"%d; %d; %d;\n", arm_A_raw_current, arm_B_raw_current, arm_C_raw_current);
-		globalState.rawCurrentA = globalState.pwmChannel1Val;
-		globalState.rawCurrentB = globalState.pwmChannel2Val;
-		globalState.rawCurrentC = globalState.pwmChannel3Val;
-//		globalState.rawCurrentA = globalState.rawCurrent[0];
-//		globalState.rawCurrentB = globalState.rawCurrent[3];
-//		globalState.rawCurrentC = globalState.rawCurrent[1];
+//		globalState.rawCurrentA = globalState.pwmChannel1Val;
+//		globalState.rawCurrentB = globalState.pwmChannel2Val;
+//		globalState.rawCurrentC = globalState.pwmChannel3Val;
+		globalState.rawCurrentA = globalState.rawCurrent[0];
+		globalState.rawCurrentB = globalState.rawCurrent[3];
+		globalState.rawCurrentC = globalState.rawCurrent[1];
         composeRegularMessage(messageString, &messageLength);
-        sendData(messageString, messageLength);
+//        sendData(messageString, messageLength);
 		cnt = 0;
 	}
 	cnt ++;
+
+	if(globalState.dataReady)
+	{
+		globalState.dataReady = 0;
+
+		while(rcvMsgInd != 63)
+		{
+			if(globalState.receivedData[rcvMsgInd++] == 0x49)
+			{
+                controlByte = globalState.receivedData[rcvMsgInd++];
+                dataBytes = globalState.receivedData[rcvMsgInd++] * 256 + globalState.receivedData[rcvMsgInd];
+				if(dataBytes >> 7) // write
+				{
+                    switch (dataBytes & 0x7f)
+                    {
+                    case 0x00:
+                        globalState.runningEnabled = dataBytes;
+                        break;
+                    case 0x01:
+                        globalState.desiredSpeed = dataBytes;
+                        break;
+                    case 0x02:
+                        globalState.sendDataEnabled = dataBytes;
+                        break;
+                    default:
+                        break;
+                    }
+				} else // read
+                {
+
+                }
+			}
+		}
+	}
 
 }
 

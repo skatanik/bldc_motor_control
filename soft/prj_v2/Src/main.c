@@ -189,11 +189,10 @@ void SystemClock_Config(void)
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1_BOOST);
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
   RCC_OscInitStruct.PLL.PLLN = 85;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
@@ -478,10 +477,6 @@ static void MX_CORDIC_Init(void)
   /* Peripheral clock enable */
   LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_CORDIC);
 
-  /* CORDIC interrupt Init */
-  NVIC_SetPriority(CORDIC_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
-  NVIC_EnableIRQ(CORDIC_IRQn);
-
   /* USER CODE BEGIN CORDIC_Init 1 */
 
   /* USER CODE END CORDIC_Init 1 */
@@ -660,7 +655,7 @@ static void MX_OPAMP1_Init(void)
   hopamp1.Init.InternalOutput = DISABLE;
   hopamp1.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
   hopamp1.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
-  hopamp1.Init.PgaGain = OPAMP_PGA_GAIN_8_OR_MINUS_7;
+  hopamp1.Init.PgaGain = OPAMP_PGA_GAIN_32_OR_MINUS_31;
   hopamp1.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
   if (HAL_OPAMP_Init(&hopamp1) != HAL_OK)
   {
@@ -694,7 +689,7 @@ static void MX_OPAMP2_Init(void)
   hopamp2.Init.InternalOutput = DISABLE;
   hopamp2.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
   hopamp2.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
-  hopamp2.Init.PgaGain = OPAMP_PGA_GAIN_8_OR_MINUS_7;
+  hopamp2.Init.PgaGain = OPAMP_PGA_GAIN_32_OR_MINUS_31;
   hopamp2.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
   if (HAL_OPAMP_Init(&hopamp2) != HAL_OK)
   {
@@ -728,7 +723,7 @@ static void MX_OPAMP3_Init(void)
   hopamp3.Init.InternalOutput = DISABLE;
   hopamp3.Init.TimerControlledMuxmode = OPAMP_TIMERCONTROLLEDMUXMODE_DISABLE;
   hopamp3.Init.PgaConnect = OPAMP_PGA_CONNECT_INVERTINGINPUT_IO0_BIAS;
-  hopamp3.Init.PgaGain = OPAMP_PGA_GAIN_8_OR_MINUS_7;
+  hopamp3.Init.PgaGain = OPAMP_PGA_GAIN_32_OR_MINUS_31;
   hopamp3.Init.UserTrimming = OPAMP_TRIMMING_FACTORY;
   if (HAL_OPAMP_Init(&hopamp3) != HAL_OK)
   {
@@ -803,7 +798,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 0;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 4250;
+  htim1.Init.Period = 8500;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
