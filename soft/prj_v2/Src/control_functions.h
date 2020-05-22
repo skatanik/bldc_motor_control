@@ -4,6 +4,7 @@
 
 typedef struct
 {
+	uint8_t adcDataReady;
     uint16_t rawPosition;
 	uint16_t rawCurrent[4];
     uint16_t rawCurrentA;
@@ -29,6 +30,7 @@ typedef struct
 
 } globalState_typedef;
 
-void initControl();
-void updateControl();
+void initControl(void);
+void updateControl(void);
 void composeRegularMessage(uint8_t * data, uint16_t * size);
+void updateCalc(void);

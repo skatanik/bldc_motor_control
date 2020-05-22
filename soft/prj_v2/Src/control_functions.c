@@ -48,9 +48,11 @@ uint8_t rcvMsgInd = 0;
 uint8_t controlByte = 0;
 uint16_t dataBytes = 0;
 
+uint32_t val_before;
+uint32_t val_after;
+
 void initControl()
 {
-    bspStart();
     globalState.pwmChannel1Val = 0;
     globalState.pwmChannel2Val = 0;
     globalState.pwmChannel3Val = 0;
@@ -58,153 +60,44 @@ void initControl()
     globalState.sendPwmChannel2Val = 1;
     globalState.sendPwmChannel3Val = 1;
     globalState.sendRawPosition = 1;
+	globalState.desiredSpeed = 0;
+	globalState.runningEnabled = 0;
+	globalState.adcDataReady = 0;
+	bspStart();
     Uv_ampl = 0.3;
     cnt = 0;
     messageLength = 0;
+	
+	fp_Vamp = 0x2fff ; // q16 amplitude 0xDDB2 max
+	fp_Uv_ang = 0;
 
 }
 
 void updateControl()
 {
-    HAL_Delay(1);
+	val_before = SysTick->VAL;
 
-	fp_Vamp = 0x4fff ; // q16 amplitude 0xDDB2 max
-    fp_Uv_ang += 182*5; // 1 degree 182
-	if(fp_Uv_ang >= 0xFFFF)
-		fp_Uv_ang = 0;
+	/* Read encoder */
 
-	if(fp_Uv_ang < fp_sixtyDeg)
-    {
-        sector_number = 1;
-        fp_betaAng = fp_Uv_ang;
-    } else if(fp_Uv_ang > fp_sixtyDeg && fp_Uv_ang < 2*fp_sixtyDeg)
-    {
-        sector_number = 2;
-        fp_betaAng = fp_Uv_ang - fp_sixtyDeg;
-    } else if(fp_Uv_ang > 2*fp_sixtyDeg && fp_Uv_ang < 3*fp_sixtyDeg)
-    {
-        sector_number = 3;
-        fp_betaAng = fp_Uv_ang - 2*fp_sixtyDeg;
-    } else if(fp_Uv_ang > 3*fp_sixtyDeg && fp_Uv_ang < 4*fp_sixtyDeg)
-    {
-        sector_number = 4;
-        fp_betaAng = fp_Uv_ang - 3*fp_sixtyDeg;
-    } else if(fp_Uv_ang > 4*fp_sixtyDeg && fp_Uv_ang < 5*fp_sixtyDeg)
-    {
-        sector_number = 5;
-        fp_betaAng = fp_Uv_ang - 4*fp_sixtyDeg;
-    } else if(fp_Uv_ang > 5*fp_sixtyDeg)
-    {
-        sector_number = 6;
-        fp_betaAng = fp_Uv_ang - 5*fp_sixtyDeg;
-    }
-
-
-
-    /* Calculate Beta and sector */
-    // sector_number = (uint8_t)floor(Uv_ang/60.0) + 1;
-    // Beta_ang = Uv_ang - 60.0*(sector_number-1);
-/*
-11 pole pairs
-32.727272 degree per electrical rotation
-mechanical 0.0909 degree per one electrical degree
-1 digit = 0.087890625 degree
-*/
-	fp_cordic_inp = (0x7fff << 16) + fp_betaAng;
-
-	LL_CORDIC_WriteData(CORDIC, fp_cordic_inp);
-	while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
-
-    sinB = (uint16_t)LL_CORDIC_ReadData(CORDIC);
-
-	fp_cordic_inp = (0x7fff << 16) + (fp_sixtyDeg - fp_betaAng);
-    LL_CORDIC_WriteData(CORDIC, fp_cordic_inp);
-	while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
-
-    sin60mB = (uint16_t)LL_CORDIC_ReadData(CORDIC);
-
-    fp_firstPart = (fp_Vamp*fp_tConst) >> 16; // q2.16
-    fp_t_a = (PWM_MAX_VAL*((sin60mB * fp_firstPart)>> 15)) >> 16 ;
-    fp_t_b = (PWM_MAX_VAL*((sinB * fp_firstPart)>> 15)) >> 16 ;
-    fp_t_zero = PWM_MAX_VAL - fp_t_a - fp_t_b;
-
-    t1 = (uint16_t) (fp_t_a + fp_t_b + (fp_t_zero >> 1));
-    t2 = (uint16_t) (fp_t_b + (fp_t_zero >> 1));
-    t3 = (uint16_t) (fp_t_a + (fp_t_zero >> 1));
-    t4 = (uint16_t) (fp_t_zero >> 1);
-
-    switch (sector_number)
-    {
-    case 1:
-        globalState.pwmChannel1Val = t1;
-        globalState.pwmChannel2Val = t2;
-        globalState.pwmChannel3Val = t4;
-		pulse_ch4 = globalState.pwmChannel2Val;
-        break;
-    case 2:
-        globalState.pwmChannel1Val = t3;
-        globalState.pwmChannel2Val = t1;
-        globalState.pwmChannel3Val = t4;
-		pulse_ch4 = globalState.pwmChannel1Val;
-        break;
-    case 3:
-        globalState.pwmChannel1Val = t4;
-        globalState.pwmChannel2Val = t1;
-        globalState.pwmChannel3Val = t2;
-		pulse_ch4 = globalState.pwmChannel3Val;
-        break;
-    case 4:
-        globalState.pwmChannel1Val = t4;
-        globalState.pwmChannel2Val = t3;
-        globalState.pwmChannel3Val = t1;
-		pulse_ch4 = globalState.pwmChannel2Val;
-        break;
-    case 5:
-        globalState.pwmChannel1Val = t2;
-        globalState.pwmChannel2Val = t4;
-        globalState.pwmChannel3Val = t1;
-		pulse_ch4 = globalState.pwmChannel1Val;
-        break;
-    case 6:
-        globalState.pwmChannel1Val = t1;
-        globalState.pwmChannel2Val = t4;
-        globalState.pwmChannel3Val = t3;
-		pulse_ch4 = globalState.pwmChannel3Val;
-        break;
-
-    default:
-        globalState.pwmChannel1Val = t1;
-        globalState.pwmChannel2Val = t2;
-        globalState.pwmChannel3Val = t4;
-		pulse_ch4 = t2;
-        break;
-    }
-
-
-    /* Set timer pulse */
-//    setPWM1(globalState.pwmChannel1Val);
-//    setPWM2(globalState.pwmChannel2Val);
-//    setPWM3(globalState.pwmChannel3Val);
-
-    /* Read encoder */
-
-//    getPositionData(rawPosData);
-//	globalState.rawPosition = (uint16_t)(rawPosData[0] << 8) + rawPosData[1];
-//	res_angle = 360.0 / 4096.0 * globalState.rawPosition;
-
-	if(cnt == 1)
+	if(getPositionData(rawPosData))
 	{
-//		sprintf(messageString,"%f \n", res_angle);
-//		sprintf(messageString,"%d %d %d %d\n", buff_data[0], buff_data[1], buff_data[2], buff_2[0]);
-//		sprintf(messageString,"%d; %d; %d;\n", arm_A_raw_current, arm_B_raw_current, arm_C_raw_current);
+		globalState.rawPosition = (uint16_t)(rawPosData[0] << 8) + rawPosData[1];
+//		res_angle = 360.0 / 4096.0 * globalState.rawPosition;
+	}
+
+	if(cnt == 1000 && globalState.sendDataEnabled)
+	{
 //		globalState.rawCurrentA = globalState.pwmChannel1Val;
 //		globalState.rawCurrentB = globalState.pwmChannel2Val;
 //		globalState.rawCurrentC = globalState.pwmChannel3Val;
 		globalState.rawCurrentA = globalState.rawCurrent[0];
 		globalState.rawCurrentB = globalState.rawCurrent[3];
 		globalState.rawCurrentC = globalState.rawCurrent[1];
-        composeRegularMessage(messageString, &messageLength);
-//        sendData(messageString, messageLength);
+		composeRegularMessage(messageString, &messageLength);
+		sendData(messageString, messageLength);
+		cnt = 0;
+	} else if(cnt > 1000)
+	{
 		cnt = 0;
 	}
 	cnt ++;
@@ -213,35 +106,162 @@ mechanical 0.0909 degree per one electrical degree
 	{
 		globalState.dataReady = 0;
 
-		while(rcvMsgInd != 63)
+		if(globalState.receivedData[rcvMsgInd++] == 0x49)
 		{
-			if(globalState.receivedData[rcvMsgInd++] == 0x49)
+			controlByte = globalState.receivedData[rcvMsgInd++];
+			dataBytes = globalState.receivedData[rcvMsgInd] * 256 + globalState.receivedData[rcvMsgInd+1];
+			if(controlByte >> 7) // write
 			{
-                controlByte = globalState.receivedData[rcvMsgInd++];
-                dataBytes = globalState.receivedData[rcvMsgInd++] * 256 + globalState.receivedData[rcvMsgInd];
-				if(dataBytes >> 7) // write
+				switch (controlByte & 0x7f)
 				{
-                    switch (dataBytes & 0x7f)
-                    {
-                    case 0x00:
-                        globalState.runningEnabled = dataBytes;
-                        break;
-                    case 0x01:
-                        globalState.desiredSpeed = dataBytes;
-                        break;
-                    case 0x02:
-                        globalState.sendDataEnabled = dataBytes;
-                        break;
-                    default:
-                        break;
-                    }
-				} else // read
-                {
-
-                }
+				case 0x00:
+					globalState.runningEnabled = dataBytes;
+					break;
+				case 0x01:
+					globalState.desiredSpeed = dataBytes;
+					break;
+				case 0x02:
+					globalState.sendDataEnabled = dataBytes;
+					break;
+				default:
+					break;
+				}
+				
+				rcvMsgInd = 0;
+			} else // read
+			{
+				rcvMsgInd = 0;
 			}
 		}
 	}
+
+	val_after = SysTick->VAL;
+		
+	val_after = val_before - val_after;
+}
+
+void updateCalc(void)
+{
+		if(fp_Uv_ang < fp_sixtyDeg)
+		{
+			sector_number = 1;
+			fp_betaAng = fp_Uv_ang;
+		} else if(fp_Uv_ang > fp_sixtyDeg && fp_Uv_ang < 2*fp_sixtyDeg)
+		{
+			sector_number = 2;
+			fp_betaAng = fp_Uv_ang - fp_sixtyDeg;
+		} else if(fp_Uv_ang > 2*fp_sixtyDeg && fp_Uv_ang < 3*fp_sixtyDeg)
+		{
+			sector_number = 3;
+			fp_betaAng = fp_Uv_ang - 2*fp_sixtyDeg;
+		} else if(fp_Uv_ang > 3*fp_sixtyDeg && fp_Uv_ang < 4*fp_sixtyDeg)
+		{
+			sector_number = 4;
+			fp_betaAng = fp_Uv_ang - 3*fp_sixtyDeg;
+		} else if(fp_Uv_ang > 4*fp_sixtyDeg && fp_Uv_ang < 5*fp_sixtyDeg)
+		{
+			sector_number = 5;
+			fp_betaAng = fp_Uv_ang - 4*fp_sixtyDeg;
+		} else if(fp_Uv_ang > 5*fp_sixtyDeg)
+		{
+			sector_number = 6;
+			fp_betaAng = fp_Uv_ang - 5*fp_sixtyDeg;
+		}
+
+	/*
+	11 pole pairs
+	32.727272 degree per electrical rotation
+	mechanical 0.0909 degree per one electrical degree
+	1 digit = 0.087890625 degree
+	*/
+		fp_cordic_inp = (0x7fff << 16) + fp_betaAng;
+
+		LL_CORDIC_WriteData(CORDIC, fp_cordic_inp);
+		while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
+
+		sinB = (uint16_t)LL_CORDIC_ReadData(CORDIC);
+
+		fp_cordic_inp = (0x7fff << 16) + (fp_sixtyDeg - fp_betaAng);
+		LL_CORDIC_WriteData(CORDIC, fp_cordic_inp);
+		while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
+
+		sin60mB = (uint16_t)LL_CORDIC_ReadData(CORDIC);
+
+		fp_firstPart = (fp_Vamp*fp_tConst) >> 16; // q2.16
+		fp_t_a = (PWM_MAX_VAL*((sin60mB * fp_firstPart)>> 15)) >> 16 ;
+		fp_t_b = (PWM_MAX_VAL*((sinB * fp_firstPart)>> 15)) >> 16 ;
+		fp_t_zero = PWM_MAX_VAL - fp_t_a - fp_t_b;
+
+		t1 = (uint16_t) (fp_t_a + fp_t_b + (fp_t_zero >> 1));
+		t2 = (uint16_t) (fp_t_b + (fp_t_zero >> 1));
+		t3 = (uint16_t) (fp_t_a + (fp_t_zero >> 1));
+		t4 = (uint16_t) (fp_t_zero >> 1);
+
+		switch (sector_number)
+		{
+		case 1:
+			globalState.pwmChannel1Val = t1;
+			globalState.pwmChannel2Val = t2;
+			globalState.pwmChannel3Val = t4;
+			pulse_ch4 = globalState.pwmChannel2Val;
+			break;
+		case 2:
+			globalState.pwmChannel1Val = t3;
+			globalState.pwmChannel2Val = t1;
+			globalState.pwmChannel3Val = t4;
+			pulse_ch4 = globalState.pwmChannel1Val;
+			break;
+		case 3:
+			globalState.pwmChannel1Val = t4;
+			globalState.pwmChannel2Val = t1;
+			globalState.pwmChannel3Val = t2;
+			pulse_ch4 = globalState.pwmChannel3Val;
+			break;
+		case 4:
+			globalState.pwmChannel1Val = t4;
+			globalState.pwmChannel2Val = t3;
+			globalState.pwmChannel3Val = t1;
+			pulse_ch4 = globalState.pwmChannel2Val;
+			break;
+		case 5:
+			globalState.pwmChannel1Val = t2;
+			globalState.pwmChannel2Val = t4;
+			globalState.pwmChannel3Val = t1;
+			pulse_ch4 = globalState.pwmChannel1Val;
+			break;
+		case 6:
+			globalState.pwmChannel1Val = t1;
+			globalState.pwmChannel2Val = t4;
+			globalState.pwmChannel3Val = t3;
+			pulse_ch4 = globalState.pwmChannel3Val;
+			break;
+
+		default:
+			globalState.pwmChannel1Val = t1;
+			globalState.pwmChannel2Val = t2;
+			globalState.pwmChannel3Val = t4;
+			pulse_ch4 = t2;
+			break;
+		}
+
+		/* Set timer pulse */
+		if(globalState.runningEnabled)
+		{
+			setPWM1(globalState.pwmChannel1Val);
+			setPWM2(globalState.pwmChannel2Val);
+			setPWM3(globalState.pwmChannel3Val);
+			
+			fp_Uv_ang += globalState.desiredSpeed; // 1 degree 182
+			
+			if(fp_Uv_ang >= 0xFFFF)
+				fp_Uv_ang = 0;
+		}
+		else
+		{
+			setPWM1(0);
+			setPWM2(0);
+			setPWM3(0);
+		}
 
 }
 

@@ -2,6 +2,8 @@
 
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern DMA_HandleTypeDef hdma_adc1;
+extern DMA_HandleTypeDef hdma_adc2;
 
 extern COMP_HandleTypeDef hcomp1;
 extern COMP_HandleTypeDef hcomp2;
@@ -59,6 +61,9 @@ void bspStart()
 
 	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)globalState.rawCurrent, 3);
 	HAL_ADC_Start_DMA(&hadc2, (uint32_t *)&globalState.rawCurrent[3], 1);
+	
+	__HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_HT);
+	__HAL_DMA_DISABLE_IT(&hdma_adc2, DMA_IT_HT);
 
 //	__HAL_TIM_ENABLE_IT(&htim1, TIM_IT_UPDATE);
 	HAL_TIM_Base_Start(&htim1);
@@ -111,7 +116,7 @@ void startDataReceiving(uint8_t * data, uint16_t size)
 int getPositionData(uint8_t * pos)
 {
     uint8_t return_value[2];
-    if(HAL_I2C_Mem_Read_IT(&hi2c1, 0x36<<1, 0x0E, I2C_MEMADD_SIZE_8BIT, (pos), 2) == HAL_OK)
+    if(HAL_I2C_Mem_Read_DMA(&hi2c1, 0x36<<1, 0x0E, I2C_MEMADD_SIZE_8BIT, (pos), 2) == HAL_OK)
     {
         return 1;
     } else
@@ -157,4 +162,9 @@ void HAL_TIMEx_Break2Callback(TIM_HandleTypeDef *htim)
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
 	globalState.dataReady = 1;
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+	updateCalc();
 }
