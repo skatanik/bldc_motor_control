@@ -68,7 +68,7 @@ void initControl()
     cnt = 0;
     messageLength = 0;
 	
-	fp_Vamp = 0x2fff ; // q16 amplitude 0xDDB2 max
+	fp_Vamp = 0x8fff ; // q16 amplitude 0xDDB2 max
 	fp_Uv_ang = 0;
 
 }
@@ -85,7 +85,7 @@ void updateControl()
 //		res_angle = 360.0 / 4096.0 * globalState.rawPosition;
 	}
 
-	if(cnt == 1000 && globalState.sendDataEnabled)
+	if(cnt == 400 && globalState.sendDataEnabled)
 	{
 //		globalState.rawCurrentA = globalState.pwmChannel1Val;
 //		globalState.rawCurrentB = globalState.pwmChannel2Val;

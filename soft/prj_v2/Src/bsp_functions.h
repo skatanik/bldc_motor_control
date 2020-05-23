@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "control_functions.h"
 
-#define PWM_PERIOD  8500
+#define PWM_PERIOD  4250
 #define MAIN_IFACE_UART
 
 void bspStart();

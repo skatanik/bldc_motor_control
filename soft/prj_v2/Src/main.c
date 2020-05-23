@@ -196,7 +196,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV4;
   RCC_OscInitStruct.PLL.PLLN = 85;
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV8;
   RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
   RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -223,7 +223,7 @@ void SystemClock_Config(void)
   PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
   PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_PCLK1;
   PeriphClkInit.FdcanClockSelection = RCC_FDCANCLKSOURCE_PCLK1;
-  PeriphClkInit.Adc12ClockSelection = RCC_ADC12CLKSOURCE_SYSCLK;
+  PeriphClkInit.Adc12ClockSelection = RCC_ADC12CLKSOURCE_PLL;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
@@ -251,7 +251,7 @@ static void MX_ADC1_Init(void)
   /** Common config 
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV2;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.GainCompensation = 0;
@@ -259,7 +259,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
-  hadc1.Init.NbrOfConversion = 3;
+  hadc1.Init.NbrOfConversion = 2;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIG_T1_TRGO;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
@@ -273,6 +273,7 @@ static void MX_ADC1_Init(void)
   /** Configure the ADC multi-mode 
   */
   multimode.Mode = ADC_MODE_INDEPENDENT;
+  multimode.TwoSamplingDelay = ADC_TWOSAMPLINGDELAY_10CYCLES;
   if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
   {
     Error_Handler();
@@ -293,14 +294,7 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_12;
   sConfig.Rank = ADC_REGULAR_RANK_2;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Configure Regular Channel 
-  */
-  sConfig.Channel = ADC_CHANNEL_1;
-  sConfig.Rank = ADC_REGULAR_RANK_3;
+  sConfig.SamplingTime = ADC_SAMPLETIME_12CYCLES_5;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -331,7 +325,7 @@ static void MX_ADC2_Init(void)
   /** Common config 
   */
   hadc2.Instance = ADC2;
-  hadc2.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+  hadc2.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV2;
   hadc2.Init.Resolution = ADC_RESOLUTION_12B;
   hadc2.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc2.Init.GainCompensation = 0;
@@ -798,8 +792,8 @@ static void MX_TIM1_Init(void)
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 0;
-  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 8500;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_CENTERALIGNED1;
+  htim1.Init.Period = 4250;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;

@@ -59,7 +59,7 @@ void bspStart()
 
 	HAL_Delay(10);
 
-	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)globalState.rawCurrent, 3);
+	HAL_ADC_Start_DMA(&hadc1, (uint32_t *)globalState.rawCurrent, 2);
 	HAL_ADC_Start_DMA(&hadc2, (uint32_t *)&globalState.rawCurrent[3], 1);
 	
 	__HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_HT);
@@ -76,7 +76,7 @@ void bspStart()
     HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
     HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
 
-	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, PWM_PERIOD);
+	__HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_4, PWM_PERIOD-30);
 }
 
 void setPWM1(uint16_t val)
