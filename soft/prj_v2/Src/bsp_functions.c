@@ -22,6 +22,7 @@ extern OPAMP_HandleTypeDef hopamp3;
 extern SPI_HandleTypeDef hspi1;
 
 extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim2;
 
 extern UART_HandleTypeDef huart1;
 extern DMA_HandleTypeDef hdma_usart1_tx;
@@ -36,13 +37,7 @@ extern globalState_typedef globalState;
 void bspStart()
 {
 
-    LL_CORDIC_Config(CORDIC, LL_CORDIC_FUNCTION_SINE,   /* cosine function */
-                           LL_CORDIC_PRECISION_6CYCLES, /* max precision for q1.31 cosine */
-                           LL_CORDIC_SCALE_0,           /* no scale */
-                           LL_CORDIC_NBWRITE_1,         /* One input data: angle. Second input data (modulus) is 1 after cordic reset */
-                           LL_CORDIC_NBREAD_1,          /* Two output data: cosine, then sine */
-                           LL_CORDIC_INSIZE_16BITS,     /* q1.31 format for input data */
-                           LL_CORDIC_OUTSIZE_16BITS);   /* q1.31 format for output data */
+    
 
 	HAL_UART_Receive_DMA(&huart1, globalState.receivedData, 4);
 	__HAL_DMA_DISABLE_IT(&hdma_usart1_rx, DMA_IT_HT);
@@ -56,6 +51,8 @@ void bspStart()
 
 //	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 //	HAL_ADCEx_Calibration_Start(&hadc2, ADC_SINGLE_ENDED);
+
+	HAL_TIM_Base_Start(&htim2);
 
 	HAL_Delay(10);
 
@@ -167,4 +164,26 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
 	updateCalc();
+}
+
+void cordicSetSin()
+{
+	LL_CORDIC_Config(CORDIC, LL_CORDIC_FUNCTION_SINE,   /* cosine function */
+                           LL_CORDIC_PRECISION_4CYCLES, /* max precision for q1.31 cosine */
+                           LL_CORDIC_SCALE_0,           /* no scale */
+                           LL_CORDIC_NBWRITE_1,         /* One input data: angle. Second input data (modulus) is 1 after cordic reset */
+                           LL_CORDIC_NBREAD_1,          /* Two output data: cosine, then sine */
+                           LL_CORDIC_INSIZE_16BITS,     /* q1.16 format for input data */
+                           LL_CORDIC_OUTSIZE_16BITS);   /* q1.16 format for output data */
+}
+
+void cordicSetPhase()
+{
+	LL_CORDIC_Config(CORDIC, LL_CORDIC_FUNCTION_PHASE,   /* cosine function */
+                           LL_CORDIC_PRECISION_4CYCLES, /* max precision for q1.31 cosine */
+                           LL_CORDIC_SCALE_0,           /* no scale */
+                           LL_CORDIC_NBWRITE_1,         /* One input data: angle. Second input data (modulus) is 1 after cordic reset */
+                           LL_CORDIC_NBREAD_1,          /* Two output data: cosine, then sine */
+                           LL_CORDIC_INSIZE_16BITS,     /* q1.16 format for input data */
+                           LL_CORDIC_OUTSIZE_16BITS);   /* q1.16 format for output data */
 }
