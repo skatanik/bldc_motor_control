@@ -67,6 +67,9 @@ void globalStateInit(void)
     globalState.sendPwmChannel1Val = 1;
     globalState.sendPwmChannel2Val = 1;
     globalState.sendPwmChannel3Val = 1;
+    globalState.sendCurrentA = 1;
+    globalState.sendCurrentB = 1;
+    globalState.sendCurrentC = 1;
     globalState.sendRawPosition = 1;
 	globalState.desiredSpeed = 0;
 	globalState.runningEnabled = 0;
@@ -163,6 +166,30 @@ void updateControl()
 				case 0x02:
 					globalState.sendDataEnabled = dataBytes;
 					break;
+                case 0x03:
+					HAL_NVIC_SystemReset();
+					break;
+                case 0x04:
+                    globalState.PIDD.Kp = dataBytes << 16;
+                    break;
+                case 0x05:
+                    globalState.PIDD.Ki = dataBytes << 16;
+                    break;
+                case 0x06:
+                    globalState.PIDD.Kd = dataBytes << 16;
+                    break;
+                case 0x07:
+                    globalState.PIDQ.Kp = dataBytes << 16;
+                    break;
+                case 0x08:
+                    globalState.PIDQ.Ki = dataBytes << 16;
+                    break;
+                case 0x09:
+                    globalState.PIDQ.Kd = dataBytes << 16;
+                    break;
+                case 0x0A:
+                    globalState.desiredCurrQ = dataBytes << 16;
+                    break;
 				default:
 					break;
 				}
@@ -256,10 +283,7 @@ void updateCalc(void)
 
     /* Alfa, Beta -> Phase , Angle */
     fp_Uv_ang   = (uint16_t)(((int16_t)(globalState.abPhase >> 16)) + 0x7FFF);  // changing int32_t representation to uint16_t representation
-    fp_Vamp     = (uint16_t)(globalState.abAmpl >> 15);
-
-    if(fp_Vamp > 0xDDB2)
-        fp_Vamp = 0xDDB2;
+    fp_Vamp     = (uint16_t)((globalState.abAmpl * 0xDDB2) >> 31);
 
     if(fp_Uv_ang < fp_sixtyDeg)
     {
@@ -394,39 +418,53 @@ void updateCalc(void)
 void composeRegularMessage(uint8_t * data, uint16_t * size)
 {
     uint8_t index = 0;
+    int16_t curr16bit;
 
     data[index++] = (uint8_t)0x48;
 
 	if(globalState.sendRawPosition)
     {
-//        data[index++] = (uint8_t)1;
-//        data[index++] = (uint8_t)2;
         data[index++] = (uint8_t)(globalState.rawPosition >> 8);
         data[index++] = (uint8_t)globalState.rawPosition;
     }
 
+    if(globalState.sendCurrentA)
+    {
+        curr16bit = globalState.currentAscaled >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendCurrentB)
+    {
+        curr16bit = globalState.currentBscaled >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendCurrentC)
+    {
+        curr16bit = globalState.currentCscaled >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
     if(globalState.sendPwmChannel1Val)
     {
-//        data[index++] = (uint8_t)2;
-//        data[index++] = (uint8_t)2;
-        data[index++] = (uint8_t)(globalState.currentAscaled >> 8);
-        data[index++] = (uint8_t)globalState.currentAscaled;
+        data[index++] = (uint8_t)(globalState.pwmChannel1Val >> 8);
+        data[index++] = (uint8_t)globalState.pwmChannel1Val;
     }
 
     if(globalState.sendPwmChannel2Val)
     {
-//        data[index++] = (uint8_t)3;
-//        data[index++] = (uint8_t)2;
-        data[index++] = (uint8_t)(globalState.currentBscaled >> 8);
-        data[index++] = (uint8_t)globalState.currentBscaled;
+        data[index++] = (uint8_t)(globalState.pwmChannel2Val >> 8);
+        data[index++] = (uint8_t)globalState.pwmChannel2Val;
     }
 
     if(globalState.sendPwmChannel3Val)
     {
-//        data[index++] = (uint8_t)4;
-//        data[index++] = (uint8_t)2;
-        data[index++] = (uint8_t)(globalState.currentCscaled >> 8);
-        data[index++] = (uint8_t)globalState.currentCscaled;
+        data[index++] = (uint8_t)(globalState.pwmChannel3Val >> 8);
+        data[index++] = (uint8_t)globalState.pwmChannel3Val;
     }
     *size = index;
 

@@ -35,7 +35,7 @@
       <x>0</x>
       <y>0</y>
       <width>1501</width>
-      <height>791</height>
+      <height>1252</height>
      </rect>
     </property>
     <property name="currentIndex">
@@ -68,10 +68,10 @@
        </rect>
       </property>
       <property name="text">
-       <string>Start</string>
+       <string>Start graph</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pb_reset">
+     <widget class="QPushButton" name="pb_resetMotor">
       <property name="geometry">
        <rect>
         <x>890</x>
@@ -81,197 +81,14 @@
        </rect>
       </property>
       <property name="text">
-       <string>Reset</string>
+       <string>Reset Motor</string>
       </property>
-     </widget>
-     <widget class="QWidget" name="layoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>180</x>
-        <y>650</y>
-        <width>160</width>
-        <height>97</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_10">
-       <item>
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>Current Q</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_3">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_11">
-           <item>
-            <widget class="QLabel" name="label_7">
-             <property name="text">
-              <string>KP</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_8">
-             <property name="text">
-              <string>KI</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_9">
-             <property name="text">
-              <string>KD</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_12">
-           <item>
-            <widget class="QLineEdit" name="le_currQkP"/>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="le_currQkI"/>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="le_currQkD"/>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="layoutWidget_2">
-      <property name="geometry">
-       <rect>
-        <x>360</x>
-        <y>650</y>
-        <width>160</width>
-        <height>97</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_13">
-       <item>
-        <widget class="QLabel" name="label_10">
-         <property name="text">
-          <string>Speed</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_14">
-           <item>
-            <widget class="QLabel" name="label_11">
-             <property name="text">
-              <string>KP</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_12">
-             <property name="text">
-              <string>KI</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_13">
-             <property name="text">
-              <string>KD</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_15">
-           <item>
-            <widget class="QLineEdit" name="le_speedQkP"/>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="le_speedQkI"/>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="le_speedQkD"/>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="layoutWidget_3">
-      <property name="geometry">
-       <rect>
-        <x>530</x>
-        <y>650</y>
-        <width>160</width>
-        <height>97</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_16">
-       <item>
-        <widget class="QLabel" name="label_14">
-         <property name="text">
-          <string>Position</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_5">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_17">
-           <item>
-            <widget class="QLabel" name="label_15">
-             <property name="text">
-              <string>KP</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_16">
-             <property name="text">
-              <string>KI</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_17">
-             <property name="text">
-              <string>KD</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_18">
-           <item>
-            <widget class="QLineEdit" name="le_posQkP"/>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="le_posQkI"/>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="le_posQkPD"/>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
      </widget>
      <widget class="QComboBox" name="cb_controlType">
       <property name="geometry">
        <rect>
-        <x>120</x>
-        <y>560</y>
+        <x>10</x>
+        <y>570</y>
         <width>99</width>
         <height>30</height>
        </rect>
@@ -298,16 +115,6 @@
        </property>
       </item>
      </widget>
-     <widget class="QDoubleSpinBox" name="doubleSpinBox">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>500</y>
-        <width>101</width>
-        <height>22</height>
-       </rect>
-      </property>
-     </widget>
      <widget class="QLabel" name="lb_boardStatus">
       <property name="geometry">
        <rect>
@@ -326,101 +133,7 @@
        <string>Board offline</string>
       </property>
      </widget>
-     <widget class="QWidget" name="">
-      <property name="geometry">
-       <rect>
-        <x>230</x>
-        <y>560</y>
-        <width>741</width>
-        <height>80</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_6">
-       <item>
-        <widget class="QSlider" name="horizontalSlider">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="horizontalSlider_2">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QSlider" name="horizontalSlider_3">
-         <property name="orientation">
-          <enum>Qt::Horizontal</enum>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>650</y>
-        <width>160</width>
-        <height>97</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_9">
-       <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>Current I</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_8">
-           <item>
-            <widget class="QLabel" name="label_3">
-             <property name="text">
-              <string>KP</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>KI</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>KD</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_7">
-           <item>
-            <widget class="QLineEdit" name="le_currIkP"/>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="le_currIkI"/>
-           </item>
-           <item>
-            <widget class="QLineEdit" name="le_currIkD"/>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -502,7 +215,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>0</x>
@@ -549,7 +262,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -600,13 +313,13 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>10</x>
-        <y>530</y>
+        <y>470</y>
         <width>101</width>
-        <height>72</height>
+        <height>71</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_21">
@@ -637,7 +350,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -672,6 +385,442 @@
           <string>Write config</string>
          </property>
         </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_2">
+      <property name="geometry">
+       <rect>
+        <x>190</x>
+        <y>650</y>
+        <width>161</width>
+        <height>97</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_10">
+       <item>
+        <widget class="QLabel" name="label_6">
+         <property name="text">
+          <string>Current Q</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout_2">
+         <item row="0" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout_11">
+           <item>
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>KP</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_8">
+             <property name="text">
+              <string>KI</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_9">
+             <property name="text">
+              <string>KD</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_12">
+           <item>
+            <widget class="QSpinBox" name="sb_currQkP">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sb_currQkI">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sb_currQkD">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>360</x>
+        <y>650</y>
+        <width>161</width>
+        <height>97</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_13">
+       <item>
+        <widget class="QLabel" name="label_10">
+         <property name="text">
+          <string>Speed</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout_3">
+         <item row="0" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout_14">
+           <item>
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>KP</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_12">
+             <property name="text">
+              <string>KI</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_13">
+             <property name="text">
+              <string>KD</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_15">
+           <item>
+            <widget class="QSpinBox" name="sb_speedkP">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sb_speedkI">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sb_speedkD">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_4">
+      <property name="geometry">
+       <rect>
+        <x>540</x>
+        <y>650</y>
+        <width>161</width>
+        <height>97</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_16">
+       <item>
+        <widget class="QLabel" name="label_14">
+         <property name="text">
+          <string>Position</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout_4">
+         <item row="0" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout_17">
+           <item>
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>KP</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>KI</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_17">
+             <property name="text">
+              <string>KD</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_18">
+           <item>
+            <widget class="QSpinBox" name="sb_poskP">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sb_poskI">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sb_poskD">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QPushButton" name="pb_runMotor">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>1000</x>
+        <y>670</y>
+        <width>81</width>
+        <height>51</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Run Motor</string>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="cb_sendData">
+      <property name="geometry">
+       <rect>
+        <x>120</x>
+        <y>560</y>
+        <width>70</width>
+        <height>17</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Send data</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pb_saveData">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>540</y>
+        <width>101</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Save data</string>
+      </property>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>11</x>
+        <y>651</y>
+        <width>161</width>
+        <height>97</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_9">
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="text">
+          <string>Current D</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QFormLayout" name="formLayout">
+         <item row="0" column="0">
+          <layout class="QVBoxLayout" name="verticalLayout_8">
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>KP</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_4">
+             <property name="text">
+              <string>KI</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_5">
+             <property name="text">
+              <string>KD</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item row="0" column="1">
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <item>
+            <widget class="QSpinBox" name="sb_currDkP">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sb_currDkI">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sb_currDkD">
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="">
+      <property name="geometry">
+       <rect>
+        <x>190</x>
+        <y>560</y>
+        <width>1081</width>
+        <height>84</height>
+       </rect>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_23">
+         <item>
+          <widget class="QLabel" name="label_22">
+           <property name="text">
+            <string>Speed</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_23">
+           <property name="text">
+            <string>Curr Q</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_24">
+           <property name="text">
+            <string>Speed</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <item>
+            <widget class="QSlider" name="hs_speedVal">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="maximum">
+              <number>1600</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSlider" name="hs_currQval">
+             <property name="minimum">
+              <number>-65535</number>
+             </property>
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSlider" name="horizontalSlider_3">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_22">
+           <item>
+            <widget class="QLabel" name="label_19">
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="sb_currQval">
+             <property name="minimum">
+              <number>-65535</number>
+             </property>
+             <property name="maximum">
+              <number>65535</number>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QSpinBox" name="spinBox_2"/>
+           </item>
+          </layout>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -721,5 +870,54 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>hs_speedVal</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>label_19</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>984</x>
+     <y>616</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1135</x>
+     <y>618</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>hs_currQval</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>sb_currQval</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1108</x>
+     <y>644</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1130</x>
+     <y>649</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sb_currQval</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>hs_currQval</receiver>
+   <slot>setValue(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1138</x>
+     <y>641</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1108</x>
+     <y>640</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

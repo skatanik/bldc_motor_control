@@ -43,6 +43,7 @@ typedef struct
     int32_t errorD;
 
     // pid Q
+    int32_t desiredCurrQ;
     arm_pid_instance_q31 PIDQ;
     int32_t currQres;
 
@@ -57,7 +58,6 @@ typedef struct
     // phase and amplitude
     int32_t abPhase;
     int32_t abAmpl;
-
 
     uint16_t pwmChannel1Val;
     uint16_t pwmChannel2Val;
@@ -79,7 +79,9 @@ typedef struct
     uint8_t sendPwmChannel1Val;
     uint8_t sendPwmChannel2Val;
     uint8_t sendPwmChannel3Val;
-    int32_t desiredCurrQ;
+    uint8_t sendCurrentA;
+    uint8_t sendCurrentB;
+    uint8_t sendCurrentC;
 
 } globalState_typedef;
 
