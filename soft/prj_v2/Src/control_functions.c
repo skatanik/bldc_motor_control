@@ -3,6 +3,9 @@
 #include <string.h>
 #include <math.h>
 
+#define MAX_MOD_VECTOR_VAL  (uint16_t) 0xDDB2
+#define SQRT3_M1        (uint16_t)0x93CD // 16 bit  1/sqrt(3) = 0,5773502691896 * 2^16
+
 uint16_t pulse_ch4 = 0;
 float Uv_ampl = 0;
 float Uv_ang = 0;
@@ -12,13 +15,12 @@ uint8_t sector_number;
 float Beta_ang;
 float MAX_MODULATION = 0.8660254;
 float coeff_timing = 2.0/1.7320508;
-uint16_t PWM_MAX_VAL = PWM_PERIOD;
 float eq_first_part;
 float t_a, t_b, t_zero;
 uint16_t t1, t2, t3, t4;
 uint8_t rawPosData[2];
 
-uint16_t raw_angle;
+int16_t raw_angle;
 float res_angle;
 int cnt;
 
@@ -69,9 +71,9 @@ void globalStateInit(void)
 	globalState.desiredSpeed = 0;
 	globalState.runningEnabled = 0;
 	globalState.adcDataReady = 0;
-    globalState.currentAscaler = 0x7850; // 0.9403
-    globalState.currentBscaler = 0x69E4; //0.8273
-    globalState.currentCscaler = 0x7FFF;
+    globalState.currentAscaler = 0xF0B7; // 0.9403 *2^16
+    globalState.currentBscaler = 0xD3CA; //0.8273
+    globalState.currentCscaler = 0xFFFF;
     globalState.currentAfiltPrev = 0;
     globalState.currentBfiltPrev = 0;
     globalState.currentCfiltPrev = 0;
@@ -108,21 +110,21 @@ void updateControl()
 
 		if(globalState.rawPosition < 97)
 		{
-			globalState.electricalAngle = 4095 - (96 - globalState.rawPosition);
+			raw_angle = 4095 - (96 - globalState.rawPosition);
 		}
 		else
-			globalState.electricalAngle = globalState.rawPosition - 97;
+			raw_angle = globalState.rawPosition - 97;
 
 		for(ind = 0; ind < 10; ind++)
 		{
-			globalState.electricalAngle -= 372;
-			if(globalState.electricalAngle < 0)
+			raw_angle -= 372;
+			if(raw_angle < 0)
 			{
-				globalState.electricalAngle += 372;
+				raw_angle += 186;
 				break;
 			}
 		}
-//		res_angle = 360.0 / 4096.0 * globalState.rawPosition;
+        globalState.electricalAngle = (raw_angle * 0xB02C0B); // (2^31) / 186  = 11 545 611; in q31 = 0xB02C0B
 	}
 
 	if(cnt == 400 && globalState.sendDataEnabled)
@@ -201,25 +203,63 @@ void updateCalc(void)
     globalState.currentBfiltPrev = globalState.currentBfilt;
     globalState.currentCfiltPrev = globalState.currentCfilt;
 
-    /* scale A, B, C currents */
+    /* scale A, B, C currents and convert to int32_t type */
 
-    globalState.currentAscaled = (((globalState.currentAfilt - globalState.currentAoffset) * globalState.currentAscaler) >> 15);
-    globalState.currentBscaled = (((globalState.currentBfilt - globalState.currentBoffset) * globalState.currentBscaler) >> 15);
-    globalState.currentCscaled = (((globalState.currentCfilt - globalState.currentCoffset) * globalState.currentCscaler) >> 15);
-
-    /* calculate position */
+    globalState.currentAscaled = (((globalState.currentAfilt - globalState.currentAoffset) * globalState.currentAscaler)); //
+    globalState.currentBscaled = (((globalState.currentBfilt - globalState.currentBoffset) * globalState.currentBscaler)); //
+    globalState.currentCscaled = (((globalState.currentCfilt - globalState.currentCoffset) * globalState.currentCscaler)); //
 
     /* Clark */
+    // globalState.alfaI = globalState.currentAscaled;
+    // globalState.betaI = ((globalState.currentBscaled - globalState.currentCscaled) * SQRT3_M1) >> 16;
+
+    arm_clarke_q31(globalState.currentAscaled, globalState.currentBscaled, &globalState.alfaI, &globalState.betaI);
 
     /* Park */
 
+    // calculate sin and cos
+    cordicSetSin32();
+    LL_CORDIC_WriteData(CORDIC, globalState.electricalAngle);
+
+    while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
+
+    globalState.thetaSin = LL_CORDIC_ReadData(CORDIC);
+    globalState.thetaCos = LL_CORDIC_ReadData(CORDIC);
+
+    // globalState.currQ = __SSAT(((globalState.alfaI * globalState.thetaCos) >> 15) - ((globalState.betaI * globalState.thetaSin) >> 15), 15);
+    // globalState.currD = __SSAT(((globalState.alfaI * globalState.thetaSin) >> 15) + ((globalState.betaI * globalState.thetaCos) >> 15), 15);
+
+    // calc Park transform
+    arm_park_q31(globalState.alfaI, globalState.betaI, &globalState.currQ, &globalState.currD, globalState.thetaSin, globalState.thetaCos);
+
+    /* Calculate errors */
+    globalState.errorD = -globalState.currD;
+    globalState.errorQ = __SSAT((globalState.desiredCurrQ - globalState.currQ), 32);
+
     /* PID D */
+    globalState.currDres = arm_pid_q31(&globalState.PIDD, globalState.errorD);
 
     /* PID Q */
+    globalState.currQres = arm_pid_q31(&globalState.PIDQ, globalState.errorQ);
 
     /* Inv Park */
+    arm_inv_park_q31(globalState.currQres, globalState.currDres, &globalState.alfaV, &globalState.betaV, globalState.thetaSin, globalState.thetaCos);
+
+    cordicSetPhase32();
+    LL_CORDIC_WriteData(CORDIC, globalState.alfaV);
+    LL_CORDIC_WriteData(CORDIC, globalState.betaV);
+
+    while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
+
+    globalState.abPhase = LL_CORDIC_ReadData(CORDIC);
+    globalState.abAmpl  = LL_CORDIC_ReadData(CORDIC);
 
     /* Alfa, Beta -> Phase , Angle */
+    fp_Uv_ang   = (uint16_t)(((int16_t)(globalState.abPhase >> 16)) + 0x7FFF);  // changing int32_t representation to uint16_t representation
+    fp_Vamp     = (uint16_t)(globalState.abAmpl >> 15);
+
+    if(fp_Vamp > 0xDDB2)
+        fp_Vamp = 0xDDB2;
 
     if(fp_Uv_ang < fp_sixtyDeg)
     {
@@ -275,9 +315,9 @@ void updateCalc(void)
 
     sin60mB = (uint16_t)LL_CORDIC_ReadData(CORDIC);
 
-    fp_t_a = (PWM_MAX_VAL*((sin60mB * fp_firstPart)>> 15)) >> 16 ;
-    fp_t_b = (PWM_MAX_VAL*((sinB * fp_firstPart)>> 15)) >> 16 ;
-    fp_t_zero = PWM_MAX_VAL - fp_t_a - fp_t_b;
+    fp_t_a = (PWM_PERIOD*((sin60mB * fp_firstPart)>> 15)) >> 16 ;
+    fp_t_b = (PWM_PERIOD*((sinB * fp_firstPart)>> 15)) >> 16 ;
+    fp_t_zero = PWM_PERIOD - fp_t_a - fp_t_b;
 
     t1 = (uint16_t) (fp_t_a + fp_t_b + (fp_t_zero >> 1));
     t2 = (uint16_t) (fp_t_b + (fp_t_zero >> 1));
@@ -346,7 +386,7 @@ void updateCalc(void)
     }
 
 	val_before = TIM2->CNT;
-	
+
 	val_after = val_before - val_after;
 
 }
