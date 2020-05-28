@@ -165,7 +165,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 void cordicSetSin(void)
 {
 	LL_CORDIC_Config(CORDIC, LL_CORDIC_FUNCTION_SINE,   /* cosine function */
-                           LL_CORDIC_PRECISION_4CYCLES, /* max precision for q1.31 cosine */
+                           LL_CORDIC_PRECISION_6CYCLES, /* max precision for q1.31 cosine */
                            LL_CORDIC_SCALE_0,           /* no scale */
                            LL_CORDIC_NBWRITE_1,         /* One input data: angle. Second input data (modulus) is 1 after cordic reset */
                            LL_CORDIC_NBREAD_1,          /* Two output data: cosine, then sine */
@@ -178,7 +178,7 @@ void cordicSetSin32(void)
 	LL_CORDIC_Config(CORDIC, LL_CORDIC_FUNCTION_SINE,   /* cosine function */
                            LL_CORDIC_PRECISION_6CYCLES, /* max precision for q1.31 cosine */
                            LL_CORDIC_SCALE_0,           /* no scale */
-                           LL_CORDIC_NBWRITE_1,         /* One input data: angle. Second input data (modulus) is 1 after cordic reset */
+                           LL_CORDIC_NBWRITE_2,         /* One input data: angle. Second input data (modulus) is 1 after cordic reset */
                            LL_CORDIC_NBREAD_2,          /* Two output data: cosine, then sine */
                            LL_CORDIC_INSIZE_32BITS,     /* q1.16 format for input data */
                            LL_CORDIC_OUTSIZE_32BITS);   /* q1.16 format for output data */

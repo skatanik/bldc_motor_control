@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <arm_math.h>
 
 #define MAX_MOD_VECTOR_VAL  (uint16_t) 0xDDB2
 #define SQRT3_M1        (uint16_t)0x93CD // 16 bit  1/sqrt(3) = 0,5773502691896 * 2^16
@@ -64,13 +65,23 @@ void globalStateInit(void)
     globalState.pwmChannel1Val = 0;
     globalState.pwmChannel2Val = 0;
     globalState.pwmChannel3Val = 0;
-    globalState.sendPwmChannel1Val = 1;
-    globalState.sendPwmChannel2Val = 1;
-    globalState.sendPwmChannel3Val = 1;
-    globalState.sendCurrentA = 1;
-    globalState.sendCurrentB = 1;
-    globalState.sendCurrentC = 1;
-    globalState.sendRawPosition = 1;
+    globalState.sendCurrentA = 0;
+    globalState.sendCurrentB = 0;
+    globalState.sendCurrentC = 0;
+    globalState.sendRawPosition = 0;
+    globalState.sendAlfaI = 0;
+    globalState.sendBetaI = 0;
+    globalState.sendCurrQ = 0;
+    globalState.sendCurrD = 0;
+    globalState.sendErrorQ = 0;
+    globalState.sendErrorD = 0;
+    globalState.sendDesiredCurrQ = 0;
+    globalState.sendCurrQres = 0;
+    globalState.sendCurrDres = 0;
+    globalState.sendAlfaV = 0;
+    globalState.sendBetaV = 0;
+    globalState.sendAbPhase = 0;
+    globalState.sendAbAmpl = 0;
 	globalState.desiredSpeed = 0;
 	globalState.runningEnabled = 0;
 	globalState.adcDataReady = 0;
@@ -82,7 +93,8 @@ void globalStateInit(void)
     globalState.currentCfiltPrev = 0;
     globalState.currentAoffset = 1896; // 1880
     globalState.currentBoffset = 1896;
-    globalState.currentCoffset = 1896;
+    globalState.currentCoffset = 1906;
+    globalState.testModeEn = 0;
 
 }
 
@@ -94,7 +106,7 @@ void initControl()
     cnt = 0;
     messageLength = 0;
 
-	fp_Vamp = 0x8fff ; // q16 amplitude 0xDDB2 max
+	fp_Vamp = 0x4fff ; // q16 amplitude 0xDDB2 max
 	fp_Uv_ang = 0;
 
 }
@@ -118,7 +130,7 @@ void updateControl()
 		else
 			raw_angle = globalState.rawPosition - 97;
 
-		for(ind = 0; ind < 10; ind++)
+		for(ind = 0; ind < 11; ind++)
 		{
 			raw_angle -= 372;
 			if(raw_angle < 0)
@@ -137,7 +149,8 @@ void updateControl()
 		// globalState.rawCurrentC = globalState.pwmChannel3Val;
 
 		composeRegularMessage(messageString, &messageLength);
-		sendData(messageString, messageLength);
+		if(messageLength > 3)
+			sendData(messageString, messageLength);
 		cnt = 0;
 	} else if(cnt > 1000)
 	{
@@ -170,26 +183,87 @@ void updateControl()
 					HAL_NVIC_SystemReset();
 					break;
                 case 0x04:
-                    globalState.PIDD.Kp = dataBytes << 16;
+                    globalState.PIDD.Kd = dataBytes << 8;
+                    arm_pid_init_q31(&globalState.PIDD, 0);
                     break;
                 case 0x05:
-                    globalState.PIDD.Ki = dataBytes << 16;
+                    globalState.PIDD.Ki = dataBytes << 8;
+                    arm_pid_init_q31(&globalState.PIDD, 0);
                     break;
                 case 0x06:
-                    globalState.PIDD.Kd = dataBytes << 16;
+                    globalState.PIDD.Kp = dataBytes << 8;
+                    arm_pid_init_q31(&globalState.PIDD, 0);
                     break;
                 case 0x07:
-                    globalState.PIDQ.Kp = dataBytes << 16;
+                    globalState.PIDQ.Kd = dataBytes << 8;
+                    arm_pid_init_q31(&globalState.PIDQ, 0);
                     break;
                 case 0x08:
-                    globalState.PIDQ.Ki = dataBytes << 16;
+                    globalState.PIDQ.Ki = dataBytes << 8;
+                    arm_pid_init_q31(&globalState.PIDQ, 0);
                     break;
                 case 0x09:
-                    globalState.PIDQ.Kd = dataBytes << 16;
+                    globalState.PIDQ.Kp = dataBytes << 8;
+                    arm_pid_init_q31(&globalState.PIDQ, 0);
                     break;
                 case 0x0A:
-                    globalState.desiredCurrQ = dataBytes << 16;
+                    globalState.desiredCurrQ = dataBytes << 8;
                     break;
+                case 0x0B:
+                    globalState.sendCurrentA = dataBytes;
+                    break;
+                case 0x0C:
+                    globalState.sendCurrentB = dataBytes;
+                    break;
+                case 0x0D:
+                    globalState.sendCurrentC = dataBytes;
+                    break;
+                case 0x0E:
+                    globalState.sendRawPosition = dataBytes;
+                    break;
+                case 0x0F:
+                    globalState.sendAlfaI = dataBytes;
+                    break;
+                case 0x10:
+                    globalState.sendBetaI = dataBytes;
+                    break;
+                case 0x11:
+                    globalState.sendCurrQ = dataBytes;
+                    break;
+                case 0x12:
+                    globalState.sendCurrD = dataBytes;
+                    break;
+                case 0x13:
+                    globalState.sendErrorQ = dataBytes;
+                    break;
+                case 0x14:
+                    globalState.sendErrorD = dataBytes;
+                    break;
+                case 0x15:
+                    globalState.sendDesiredCurrQ = dataBytes;
+                    break;
+                case 0x16:
+                    globalState.sendCurrQres = dataBytes;
+                    break;
+                case 0x17:
+                    globalState.sendCurrDres = dataBytes;
+                    break;
+                case 0x18:
+                    globalState.sendAlfaV = dataBytes;
+                    break;
+                case 0x19:
+                    globalState.sendBetaV = dataBytes;
+                    break;
+                case 0x1A:
+                    globalState.sendAbAmpl = dataBytes;
+                    break;
+                case 0x1B:
+                    globalState.sendAbPhase = dataBytes;
+                    break;
+                case 0x1C:
+                    globalState.testModeEn = dataBytes;
+                    break;
+
 				default:
 					break;
 				}
@@ -247,8 +321,9 @@ void updateCalc(void)
     // calculate sin and cos
     cordicSetSin32();
     LL_CORDIC_WriteData(CORDIC, globalState.electricalAngle);
+	LL_CORDIC_WriteData(CORDIC, (int32_t)((1<<31)-1));
 
-    while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
+//    while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
 
     globalState.thetaSin = LL_CORDIC_ReadData(CORDIC);
     globalState.thetaCos = LL_CORDIC_ReadData(CORDIC);
@@ -273,17 +348,24 @@ void updateCalc(void)
     arm_inv_park_q31(globalState.currQres, globalState.currDres, &globalState.alfaV, &globalState.betaV, globalState.thetaSin, globalState.thetaCos);
 
     cordicSetPhase32();
-    LL_CORDIC_WriteData(CORDIC, globalState.alfaV);
     LL_CORDIC_WriteData(CORDIC, globalState.betaV);
+    LL_CORDIC_WriteData(CORDIC, globalState.alfaV);
 
-    while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
+//    while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
 
     globalState.abPhase = LL_CORDIC_ReadData(CORDIC);
     globalState.abAmpl  = LL_CORDIC_ReadData(CORDIC);
 
     /* Alfa, Beta -> Phase , Angle */
-    fp_Uv_ang   = (uint16_t)(((int16_t)(globalState.abPhase >> 16)) + 0x7FFF);  // changing int32_t representation to uint16_t representation
-    fp_Vamp     = (uint16_t)((globalState.abAmpl * 0xDDB2) >> 31);
+    if(!globalState.testModeEn)
+    {
+        fp_Uv_ang   = (uint16_t)(((int16_t)(globalState.abPhase >> 16)) + 0x7FFF);  // changing int32_t representation to uint16_t representation
+        fp_Vamp     = (uint16_t)(((uint64_t)globalState.abAmpl * 0xDDB2) >> 31);
+    }
+    else
+    {
+        fp_Vamp = 0x4fff;
+    }
 
     if(fp_Uv_ang < fp_sixtyDeg)
     {
@@ -325,17 +407,17 @@ void updateCalc(void)
 
     LL_CORDIC_WriteData(CORDIC, fp_cordic_inp);
 
-    fp_cordic_inp = (0x7fff << 16) + (fp_sixtyDeg - fp_betaAng);
-
-    while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
+//    while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
 
     sinB = (uint16_t)LL_CORDIC_ReadData(CORDIC);
 
+	fp_cordic_inp = (0x7fff << 16) + (fp_sixtyDeg - fp_betaAng);
+
     LL_CORDIC_WriteData(CORDIC, fp_cordic_inp);
 
-    fp_firstPart = (fp_Vamp*fp_tConst) >> 16; // q2.16
+//    while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
 
-    while(!LL_CORDIC_IsActiveFlag_RRDY(CORDIC)){}
+	fp_firstPart = (fp_Vamp*fp_tConst) >> 16; // q2.16
 
     sin60mB = (uint16_t)LL_CORDIC_ReadData(CORDIC);
 
@@ -396,11 +478,14 @@ void updateCalc(void)
         setPWM1(globalState.pwmChannel1Val);
         setPWM2(globalState.pwmChannel2Val);
         setPWM3(globalState.pwmChannel3Val);
+        
+        if(globalState.testModeEn)
+        {
+            fp_Uv_ang += globalState.desiredSpeed; // 1 degree 182 digits (360 degree - 2pi rad - 0xffff)
 
-        fp_Uv_ang += globalState.desiredSpeed; // 1 degree 182 digits (360 degree - 2pi rad - 0xffff)
-
-        if(fp_Uv_ang >= 0xFFFF)
-            fp_Uv_ang = 0;
+            if(fp_Uv_ang >= 0xFFFF)
+               fp_Uv_ang = 0;
+        }
     }
     else
     {
@@ -420,52 +505,175 @@ void composeRegularMessage(uint8_t * data, uint16_t * size)
     uint8_t index = 0;
     int16_t curr16bit;
 
-    data[index++] = (uint8_t)0x48;
-
-	if(globalState.sendRawPosition)
-    {
-        data[index++] = (uint8_t)(globalState.rawPosition >> 8);
-        data[index++] = (uint8_t)globalState.rawPosition;
-    }
-
     if(globalState.sendCurrentA)
     {
-        curr16bit = globalState.currentAscaled >> 16;
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x0B;
+        curr16bit = globalState.currentAscaled >> 16; // globalState.pwmChannel1Val;
         data[index++] = (uint8_t)(curr16bit >> 8);
         data[index++] = (uint8_t)curr16bit;
     }
 
     if(globalState.sendCurrentB)
     {
-        curr16bit = globalState.currentBscaled >> 16;
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x0C;
+        curr16bit = globalState.currentBscaled >> 16; // globalState.pwmChannel2Val;
         data[index++] = (uint8_t)(curr16bit >> 8);
         data[index++] = (uint8_t)curr16bit;
     }
 
     if(globalState.sendCurrentC)
     {
-        curr16bit = globalState.currentCscaled >> 16;
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x0D;
+        curr16bit = globalState.currentCscaled >> 16; // globalState.pwmChannel3Val;
         data[index++] = (uint8_t)(curr16bit >> 8);
         data[index++] = (uint8_t)curr16bit;
     }
 
-    if(globalState.sendPwmChannel1Val)
+    if(globalState.sendRawPosition)
     {
-        data[index++] = (uint8_t)(globalState.pwmChannel1Val >> 8);
-        data[index++] = (uint8_t)globalState.pwmChannel1Val;
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x0E;
+        data[index++] = (uint8_t)(globalState.rawPosition >> 8);
+        data[index++] = (uint8_t)globalState.rawPosition;
     }
 
-    if(globalState.sendPwmChannel2Val)
+    if(globalState.sendAlfaI)
     {
-        data[index++] = (uint8_t)(globalState.pwmChannel2Val >> 8);
-        data[index++] = (uint8_t)globalState.pwmChannel2Val;
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x0F;
+        curr16bit = globalState.alfaI >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
     }
 
-    if(globalState.sendPwmChannel3Val)
+    if(globalState.sendBetaI)
     {
-        data[index++] = (uint8_t)(globalState.pwmChannel3Val >> 8);
-        data[index++] = (uint8_t)globalState.pwmChannel3Val;
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x10;
+        curr16bit = globalState.betaI >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
     }
+
+    if(globalState.sendCurrQ)
+    {
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x11;
+        curr16bit = globalState.currQ >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendCurrD)
+    {
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x12;
+        curr16bit = globalState.currD >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendErrorQ)
+    {
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x13;
+        curr16bit = globalState.errorQ >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendErrorD)
+    {
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x14;
+        curr16bit = globalState.errorD >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendDesiredCurrQ)
+    {
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x15;
+        curr16bit = globalState.desiredCurrQ >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendCurrQres)
+    {
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x16;
+        curr16bit = globalState.currQres >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendCurrDres)
+    {
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x17;
+        curr16bit = globalState.currDres >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendAlfaV)
+    {
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x18;
+        curr16bit = globalState.alfaV >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendBetaV)
+    {
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x19;
+        curr16bit = globalState.betaV >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendAbAmpl)
+    {
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x1A;
+        curr16bit = (uint16_t)globalState.abAmpl; // >> 16; //fp_Vamp; 
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+    if(globalState.sendAbPhase)
+    {
+        data[index++] = (uint8_t)0x48;
+        data[index++] = 0x1B;
+        curr16bit = globalState.abPhase >> 16;
+        data[index++] = (uint8_t)(curr16bit >> 8);
+        data[index++] = (uint8_t)curr16bit;
+    }
+
+//    if(globalState.sendPwmChannel1Val)
+//    {
+//        data[index++] = (uint8_t)(globalState.pwmChannel1Val >> 8);
+//        data[index++] = (uint8_t)globalState.pwmChannel1Val;
+//    }
+
+//    if(globalState.sendPwmChannel2Val)
+//    {
+//        data[index++] = (uint8_t)(globalState.pwmChannel2Val >> 8);
+//        data[index++] = (uint8_t)globalState.pwmChannel2Val;
+//    }
+
+//    if(globalState.sendPwmChannel3Val)
+//    {
+//        data[index++] = (uint8_t)(globalState.pwmChannel3Val >> 8);
+//        data[index++] = (uint8_t)globalState.pwmChannel3Val;
+//    }
     *size = index;
 
 }

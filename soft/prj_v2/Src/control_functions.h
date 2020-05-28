@@ -57,7 +57,7 @@ typedef struct
 
     // phase and amplitude
     int32_t abPhase;
-    int32_t abAmpl;
+    uint32_t abAmpl;
 
     uint16_t pwmChannel1Val;
     uint16_t pwmChannel2Val;
@@ -76,12 +76,23 @@ typedef struct
     uint8_t runningEnabled;
     uint8_t sendDataEnabled;
     uint8_t sendRawPosition;
-    uint8_t sendPwmChannel1Val;
-    uint8_t sendPwmChannel2Val;
-    uint8_t sendPwmChannel3Val;
     uint8_t sendCurrentA;
     uint8_t sendCurrentB;
     uint8_t sendCurrentC;
+    uint8_t sendAlfaI;
+    uint8_t sendBetaI;
+    uint8_t sendCurrQ;
+    uint8_t sendCurrD;
+    uint8_t sendErrorQ;
+    uint8_t sendErrorD;
+    uint8_t sendDesiredCurrQ;
+    uint8_t sendCurrQres;
+    uint8_t sendCurrDres;
+    uint8_t sendAlfaV;
+    uint8_t sendBetaV;
+    uint8_t sendAbPhase;
+    uint8_t sendAbAmpl;
+	uint8_t testModeEn;
 
 } globalState_typedef;
 
