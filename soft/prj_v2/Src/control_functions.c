@@ -95,6 +95,8 @@ void globalStateInit(void)
     globalState.currentBoffset = 1896;
     globalState.currentCoffset = 1906;
     globalState.testModeEn = 0;
+    globalState.posOffset = 282;
+    globalState.testAmpl = 0x1fff;
 
 }
 
@@ -123,12 +125,12 @@ void updateControl()
 	{
 		globalState.rawPosition = (uint16_t)(rawPosData[0] << 8) + rawPosData[1];
 
-		if(globalState.rawPosition < 97)
+		if(globalState.rawPosition < globalState.posOffset)
 		{
-			raw_angle = 4095 - (96 - globalState.rawPosition);
+			raw_angle = 4095 - (globalState.posOffset - 1 - globalState.rawPosition);
 		}
 		else
-			raw_angle = globalState.rawPosition - 97;
+			raw_angle = globalState.rawPosition - globalState.posOffset;
 
 		for(ind = 0; ind < 11; ind++)
 		{
@@ -172,6 +174,8 @@ void updateControl()
 				{
 				case 0x00:
 					globalState.runningEnabled = dataBytes;
+                    if(globalState.testModeEn)
+                        fp_Uv_ang = 0;
 					break;
 				case 0x01:
 					globalState.desiredSpeed = dataBytes;
@@ -183,31 +187,31 @@ void updateControl()
 					HAL_NVIC_SystemReset();
 					break;
                 case 0x04:
-                    globalState.PIDD.Kd = dataBytes << 8;
+                    globalState.PIDD.Kd = dataBytes << 6;
                     arm_pid_init_q31(&globalState.PIDD, 0);
                     break;
                 case 0x05:
-                    globalState.PIDD.Ki = dataBytes << 8;
+                    globalState.PIDD.Ki = dataBytes << 6;
                     arm_pid_init_q31(&globalState.PIDD, 0);
                     break;
                 case 0x06:
-                    globalState.PIDD.Kp = dataBytes << 8;
+                    globalState.PIDD.Kp = dataBytes << 5;
                     arm_pid_init_q31(&globalState.PIDD, 0);
                     break;
                 case 0x07:
-                    globalState.PIDQ.Kd = dataBytes << 8;
+                    globalState.PIDQ.Kd = dataBytes << 6;
                     arm_pid_init_q31(&globalState.PIDQ, 0);
                     break;
                 case 0x08:
-                    globalState.PIDQ.Ki = dataBytes << 8;
+                    globalState.PIDQ.Ki = dataBytes << 6;
                     arm_pid_init_q31(&globalState.PIDQ, 0);
                     break;
                 case 0x09:
-                    globalState.PIDQ.Kp = dataBytes << 8;
+                    globalState.PIDQ.Kp = dataBytes << 6;
                     arm_pid_init_q31(&globalState.PIDQ, 0);
                     break;
                 case 0x0A:
-                    globalState.desiredCurrQ = dataBytes << 8;
+                    globalState.desiredCurrQ = (int32_t)(dataBytes << 16);
                     break;
                 case 0x0B:
                     globalState.sendCurrentA = dataBytes;
@@ -262,6 +266,12 @@ void updateControl()
                     break;
                 case 0x1C:
                     globalState.testModeEn = dataBytes;
+                    break;
+                case 0x1D:
+                    globalState.posOffset = dataBytes;
+                    break;
+                case 0x1E:
+                    globalState.testAmpl = dataBytes;
                     break;
 
 				default:
@@ -360,11 +370,11 @@ void updateCalc(void)
     if(!globalState.testModeEn)
     {
         fp_Uv_ang   = (uint16_t)(((int16_t)(globalState.abPhase >> 16)) + 0x7FFF);  // changing int32_t representation to uint16_t representation
-        fp_Vamp     = (uint16_t)(((uint64_t)globalState.abAmpl * 0xDDB2) >> 31);
+        fp_Vamp     = (uint16_t)__SSAT((((uint64_t)globalState.abAmpl * 0xDDB2) >> 19), 16);
     }
     else
     {
-        fp_Vamp = 0x4fff;
+        fp_Vamp = globalState.testAmpl;
     }
 
     if(fp_Uv_ang < fp_sixtyDeg)
@@ -478,7 +488,7 @@ void updateCalc(void)
         setPWM1(globalState.pwmChannel1Val);
         setPWM2(globalState.pwmChannel2Val);
         setPWM3(globalState.pwmChannel3Val);
-        
+
         if(globalState.testModeEn)
         {
             fp_Uv_ang += globalState.desiredSpeed; // 1 degree 182 digits (360 degree - 2pi rad - 0xffff)
@@ -643,7 +653,7 @@ void composeRegularMessage(uint8_t * data, uint16_t * size)
     {
         data[index++] = (uint8_t)0x48;
         data[index++] = 0x1A;
-        curr16bit = (uint16_t)globalState.abAmpl; // >> 16; //fp_Vamp; 
+        curr16bit = (uint16_t)(globalState.abAmpl >> 16); //fp_Vamp;
         data[index++] = (uint8_t)(curr16bit >> 8);
         data[index++] = (uint8_t)curr16bit;
     }

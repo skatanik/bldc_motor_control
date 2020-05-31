@@ -66,6 +66,7 @@ typedef struct
     // position
     uint16_t rawPosition;
 	int32_t electricalAngle;
+	uint16_t posOffset;
 
     // communication
 	uint8_t receivedData [256];
@@ -93,6 +94,7 @@ typedef struct
     uint8_t sendAbPhase;
     uint8_t sendAbAmpl;
 	uint8_t testModeEn;
+	uint16_t testAmpl;
 
 } globalState_typedef;
 

@@ -21,3 +21,9 @@ void cordicSetSin(void);
 void cordicSetSin32(void);
 void cordicSetPhase32(void);
 
+//410 mv , 15*10^-6 sec 
+
+// 540 mv 5V
+
+//12.10 Ohm
+// 0,0001815 H = 181,5 uH
