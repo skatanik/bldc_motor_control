@@ -186,6 +186,28 @@ VirtualSpeedSensor_Handle_t VirtualSpeedSensorM1 =
 
 };
 
+/**
+  * @brief  SpeedNPosition sensor parameters Motor 1 - Encoder
+  */
+ENCODER_Handle_t ENCODER_M1 =
+{
+  ._Super = {
+    .bElToMecRatio                     =	POLE_PAIR_NUM,
+    .hMaxReliableMecSpeedUnit          =	(uint16_t)(1.15*MAX_APPLICATION_SPEED_UNIT),
+    .hMinReliableMecSpeedUnit          =	(uint16_t)(MIN_APPLICATION_SPEED_UNIT),
+    .bMaximumSpeedErrorsNumber         =	MEAS_ERRORS_BEFORE_FAULTS,
+    .hMaxReliableMecAccelUnitP         =	65535,
+    .hMeasurementFrequency             =	TF_REGULATION_RATE_SCALED,
+    .DPPConvFactor                     =  DPP_CONV_FACTOR,
+  },
+  .PulseNumber           =	M1_ENCODER_PPR*4,
+  .RevertSignal           =	(FunctionalState)ENC_INVERT_SPEED,
+  .SpeedSamplingFreqHz   =	MEDIUM_FREQUENCY_TASK_RATE,
+  .SpeedBufferSize       =	ENC_AVERAGING_FIFO_DEPTH,
+  .TIMx                  =	TIM2,
+  .ICx_Filter            =  M1_ENC_IC_FILTER,
+
+};
 
 /**
   * @brief  Encoder Alignment Controller parameters Motor 1
@@ -250,28 +272,6 @@ UFCP_Handle_t pUSART =
 {
   ._Super.RxTimeout = 0,
   .USARTx = USART1,
-
-};
-/**
-  * @brief  SpeedNPosition sensor parameters Motor 1 - Encoder
-  */
-ENCODER_Handle_t ENCODER_M1 =
-{
-  ._Super = {
-    .bElToMecRatio                     =	POLE_PAIR_NUM,
-    .hMaxReliableMecSpeedUnit          =	(uint16_t)(1.15*MAX_APPLICATION_SPEED_UNIT),
-    .hMinReliableMecSpeedUnit          =	(uint16_t)(MIN_APPLICATION_SPEED_UNIT),
-    .bMaximumSpeedErrorsNumber         =	MEAS_ERRORS_BEFORE_FAULTS,
-    .hMaxReliableMecAccelUnitP         =	65535,
-    .hMeasurementFrequency             =	TF_REGULATION_RATE_SCALED,
-    .DPPConvFactor                     =  DPP_CONV_FACTOR,
-  },
-  .PulseNumber           =	M1_ENCODER_PPR*4,
-  .RevertSignal           =	(FunctionalState)ENC_INVERT_SPEED,
-  .SpeedSamplingFreqHz   =	MEDIUM_FREQUENCY_TASK_RATE,
-  .SpeedBufferSize       =	ENC_AVERAGING_FIFO_DEPTH,
-  .TIMx                  =	TIM2,
-  .ICx_Filter            =  M1_ENC_IC_FILTER,
 
 };
 

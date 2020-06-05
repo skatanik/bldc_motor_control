@@ -542,6 +542,9 @@ static void MX_I2C1_Init(void)
   {
     Error_Handler();
   }
+  /** I2C Fast mode Plus enable 
+  */
+  __HAL_SYSCFG_FASTMODEPLUS_ENABLE(I2C_FASTMODEPLUS_I2C1);
   /* USER CODE BEGIN I2C1_Init 2 */
 
   /* USER CODE END I2C1_Init 2 */
