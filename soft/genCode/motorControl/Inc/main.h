@@ -61,8 +61,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define M1_ENCODER_A_Pin GPIO_PIN_0
-#define M1_ENCODER_A_GPIO_Port GPIOA
 #define M1_CURR_SHUNT_U_Pin GPIO_PIN_1
 #define M1_CURR_SHUNT_U_GPIO_Port GPIOA
 #define M1_OPAMP1_OUT_Pin GPIO_PIN_2
