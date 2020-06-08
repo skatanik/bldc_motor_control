@@ -54,6 +54,10 @@
  * @{
  */
 extern uint16_t adcRawData[3];
+extern ADC_HandleTypeDef hadc1;
+extern ADC_HandleTypeDef hadc2;
+extern DMA_HandleTypeDef hdma_adc1;
+extern DMA_HandleTypeDef hdma_adc2;
 /* Private defines -----------------------------------------------------------*/
 #define TIMxCCER_MASK_CH123        ((uint16_t)  (LL_TIM_CHANNEL_CH1|LL_TIM_CHANNEL_CH1N|\
                                                  LL_TIM_CHANNEL_CH2|LL_TIM_CHANNEL_CH2N|\
@@ -188,8 +192,8 @@ __weak void R3_2_Init( PWMC_R3_2_Handle_t * pHandle )
       /* Only the Interrupt of the first ADC is enabled.
        * As Both ADCs are fired by HW at the same moment
        * It is safe to consider that both conversion are ready at the same time*/
-      LL_ADC_ClearFlag_JEOS( ADCx_1 );
-      LL_ADC_EnableIT_JEOS( ADCx_1 );
+    //   LL_ADC_ClearFlag_JEOS( ADCx_1 );
+    //   LL_ADC_EnableIT_JEOS( ADCx_1 );
     }
     else
     {
@@ -241,10 +245,10 @@ static void R3_2_ADCxInit( ADC_TypeDef * ADCx )
     LL_ADC_Enable(  ADCx );
   }
   /* Clear JSQR from CubeMX setting to avoid not wanting conversion*/
-  LL_ADC_INJ_StartConversion( ADCx );
-  LL_ADC_INJ_StopConversion(ADCx);
-  /* TODO: check if not already done by MX */
-  LL_ADC_INJ_SetQueueMode( ADCx, LL_ADC_INJ_QUEUE_2CONTEXTS_END_EMPTY );
+//   LL_ADC_INJ_StartConversion( ADCx );
+//   LL_ADC_INJ_StopConversion(ADCx);
+//   /* TODO: check if not already done by MX */
+//   LL_ADC_INJ_SetQueueMode( ADCx, LL_ADC_INJ_QUEUE_2CONTEXTS_END_EMPTY );
  }
 
 /**
@@ -382,8 +386,13 @@ __weak void R3_2_CurrentReadingPolarization( PWMC_Handle_t * pHdl )
   }
   /* It is the right time to start the ADC without unwanted conversion */
   /* Start ADC to wait for external trigger. This is series dependant*/
-  LL_ADC_INJ_StartConversion( ADCx_1 );
-  LL_ADC_INJ_StartConversion( ADCx_2 );
+//   LL_ADC_INJ_StartConversion( ADCx_1 );
+//   LL_ADC_INJ_StartConversion( ADCx_2 );
+
+HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcRawData, 2);
+HAL_ADC_Start_DMA(&hadc2, (uint32_t *)&adcRawData[2], 1);
+__HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_HT);
+__HAL_DMA_DISABLE_IT(&hdma_adc2, DMA_IT_HT);
 
   /* Wait for NB_CONVERSIONS to be executed */
   waitForPolarizationEnd( TIMx,
@@ -1002,8 +1011,8 @@ __weak void * R3_2_TIMx_UP_IRQHandler( PWMC_R3_2_Handle_t * pHandle )
   if ( OPAMPParams != NULL )
   {
   /* We can not change OPAMP source if ADC acquisition is ongoing (Dual motor with internal opamp use case)*/
-    while (ADCx_1->JSQR != 0x0u)
-    {}
+    // while (ADCx_1->JSQR != 0x0u)
+    // {}
   /* We need to manage the Operational amplifier internal output enable - Dedicated to G4 and the VPSEL selection */
     Opamp = OPAMPParams->OPAMPSelect_1[pHandle->_Super.Sector];
     if (Opamp != NULL )
@@ -1019,8 +1028,8 @@ __weak void * R3_2_TIMx_UP_IRQHandler( PWMC_R3_2_Handle_t * pHandle )
     }
   }
 
-  ADCx_1->JSQR = pHandle->pParams_str->ADCConfig1[pHandle->_Super.Sector] | (uint32_t) pHandle->ADC_ExternalPolarityInjected;
-  ADCx_2->JSQR = pHandle->pParams_str->ADCConfig2[pHandle->_Super.Sector] | (uint32_t) pHandle->ADC_ExternalPolarityInjected;
+//   ADCx_1->JSQR = pHandle->pParams_str->ADCConfig1[pHandle->_Super.Sector] | (uint32_t) pHandle->ADC_ExternalPolarityInjected;
+//   ADCx_2->JSQR = pHandle->pParams_str->ADCConfig2[pHandle->_Super.Sector] | (uint32_t) pHandle->ADC_ExternalPolarityInjected;
 
   /* enable ADC trigger source */
 
@@ -1500,8 +1509,10 @@ static void R3_2_RLSwitchOnPWM( PWMC_Handle_t * pHdl )
    * B will be sampled by ADCx_1 */
   pHdl->Sector = SECTOR_4;
 
-  LL_ADC_INJ_StartConversion( ADCx_1 );
-  LL_ADC_INJ_StartConversion( ADCx_2 );
+HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcRawData, 2);
+HAL_ADC_Start_DMA(&hadc2, (uint32_t *)&adcRawData[2], 1);
+__HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_HT);
+__HAL_DMA_DISABLE_IT(&hdma_adc2, DMA_IT_HT);
 
   return;
 }
