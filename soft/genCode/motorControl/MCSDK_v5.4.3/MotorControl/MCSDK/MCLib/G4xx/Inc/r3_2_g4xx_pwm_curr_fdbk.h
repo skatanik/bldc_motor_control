@@ -64,8 +64,8 @@ typedef const struct
    OPAMP_TypeDef * OPAMPx_3; /* OPAMP dedicated to phase C */
    OPAMP_TypeDef * OPAMPSelect_1 [6] ; /*!< define for each sector first conversion which OPAMP is involved - Null otherwise */
    OPAMP_TypeDef * OPAMPSelect_2 [6] ; /*!< define for each sector second conversion which OPAMP is involved - Null otherwise */
-   uint32_t OPAMPConfig1 [6]; /*!< Define the OPAMP_CSR_OPAMPINTEN and the OPAMP_CSR_VPSEL config for each ADC conversions*/ 
-   uint32_t OPAMPConfig2 [6]; /*!< Define the OPAMP_CSR_OPAMPINTEN and the OPAMP_CSR_VPSEL config for each ADC conversions*/ 
+   uint32_t OPAMPConfig1 [6]; /*!< Define the OPAMP_CSR_OPAMPINTEN and the OPAMP_CSR_VPSEL config for each ADC conversions*/
+   uint32_t OPAMPConfig2 [6]; /*!< Define the OPAMP_CSR_OPAMPINTEN and the OPAMP_CSR_VPSEL config for each ADC conversions*/
 } R3_3_OPAMPParams_t;
 
 /**
@@ -97,15 +97,15 @@ typedef const struct
   uint32_t volatile * ADCDataReg1[6]; /*!< Contains the Address of ADC read value for one phase
                                          and all the 6 sectors */
   uint32_t volatile * ADCDataReg2[6]; /*!< Contains the Address of ADC read value for one phase
-                                         and all the 6 sectors */     
-  uint32_t ADCConfig1 [6] ; /*!< values of JSQR for first ADC for 6 sectors */ 
-  uint32_t ADCConfig2 [6] ; /*!< values of JSQR for Second ADC for 6 sectors */ 
-  
+                                         and all the 6 sectors */
+  uint32_t ADCConfig1 [6] ; /*!< values of JSQR for first ADC for 6 sectors */
+  uint32_t ADCConfig2 [6] ; /*!< values of JSQR for Second ADC for 6 sectors */
+
   uint16_t pwm_en_u_pin;                    /*!< Channel 1N (low side) GPIO output pin */
   uint16_t pwm_en_v_pin;                    /*!< Channel 2N (low side) GPIO output pin */
   uint16_t pwm_en_w_pin;                    /*!< Channel 3N (low side)  GPIO output pin */
-  
-  
+
+
  /* PWM generation parameters --------------------------------------------------*/
 
   uint16_t Tafter;                    /*!< It is the sum of dead time plus max
@@ -120,7 +120,7 @@ typedef const struct
                                            Ex. 0 = 0V 65536 = VDD_DAC.*/
   uint16_t DAC_OVP_Threshold;        /*!< Value of analog reference expressed
                                            as 16bit unsigned integer.
-                                           Ex. 0 = 0V 65536 = VDD_DAC.*/   
+                                           Ex. 0 = 0V 65536 = VDD_DAC.*/
   /* PWM Driving signals initialization ----------------------------------------*/
   LowSideOutputsFunction_t LowSideOutputs; /*!< Low side or enabling signals
                                                 generation method are defined
@@ -140,17 +140,17 @@ typedef const struct
                                            as source of emergency event.
                                            EXT_MODE - External comparator used
                                            as source of emergency event.*/
- 
-  /* Internal COMP settings ----------------------------------------------------*/                                 
+
+  /* Internal COMP settings ----------------------------------------------------*/
   uint8_t       CompOCPAInvInput_MODE;    /*!< COMPx inverting input mode. It must be either
-                                                equal to EXT_MODE or INT_MODE. */                            
+                                                equal to EXT_MODE or INT_MODE. */
   uint8_t       CompOCPBInvInput_MODE;    /*!< COMPx inverting input mode. It must be either
-                                                equal to EXT_MODE or INT_MODE. */                                               
+                                                equal to EXT_MODE or INT_MODE. */
   uint8_t       CompOCPCInvInput_MODE;    /*!< COMPx inverting input mode. It must be either
-                                                equal to EXT_MODE or INT_MODE. */                                        
+                                                equal to EXT_MODE or INT_MODE. */
   uint8_t       CompOVPInvInput_MODE;     /*!< COMPx inverting input mode. It must be either
                                                 equal to EXT_MODE or INT_MODE. */
-  
+
   /* Dual MC parameters --------------------------------------------------------*/
   uint8_t  FreqRatio;             /*!< It is used in case of dual MC to
                                         synchronize TIM1 and TIM8. It has
@@ -163,7 +163,7 @@ typedef const struct
                                         this param is used to indicate if this
                                         instance is the one with the highest
                                         frequency. Allowed value are: HIGHER_FREQ
-                                        or LOWER_FREQ */                                           
+                                        or LOWER_FREQ */
 
 } R3_2_Params_t, *pR3_2_Params_t;
 
@@ -176,7 +176,7 @@ typedef struct
   PWMC_Handle_t _Super;     /*!<   */
   uint32_t PhaseAOffset;   /*!< Offset of Phase A current sensing network  */
   uint32_t PhaseBOffset;   /*!< Offset of Phase B current sensing network  */
-  uint32_t PhaseCOffset;   /*!< Offset of Phase C current sensing network  */                                
+  uint32_t PhaseCOffset;   /*!< Offset of Phase C current sensing network  */
   uint16_t Half_PWMPeriod;  /*!< Half PWM Period in timer clock counts */
   uint16_t ADC_ExternalPolarityInjected;
   uint8_t  PolarizationCounter;
@@ -231,7 +231,7 @@ void R3_2_SwitchOnPWM( PWMC_Handle_t * pHdl );
 void R3_2_SwitchOffPWM( PWMC_Handle_t * pHdl );
 
 /**
-  * Configure the ADC for the current sampling 
+  * Configure the ADC for the current sampling
   * It means set the sampling point via TIMx_Ch4 value and polarity
   * ADC sequence length and channels.
   * And call the WriteTIMRegisters method.

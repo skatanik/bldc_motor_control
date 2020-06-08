@@ -53,7 +53,7 @@
  *
  * @{
  */
-
+extern uint16_t adcRawData[3];
 /* Private defines -----------------------------------------------------------*/
 #define TIMxCCER_MASK_CH123        ((uint16_t)  (LL_TIM_CHANNEL_CH1|LL_TIM_CHANNEL_CH1N|\
                                                  LL_TIM_CHANNEL_CH2|LL_TIM_CHANNEL_CH2N|\
@@ -120,18 +120,18 @@ __weak void R3_2_Init( PWMC_R3_2_Handle_t * pHandle )
     if ( OPAMPParams != NULL )
     {
     /* Testing of all OPAMP one by one is required as 2 or 3 OPAMPS cfg may exist*/
-     if (OPAMPParams -> OPAMPx_1 != NULL ) 
+     if (OPAMPParams -> OPAMPx_1 != NULL )
      {
       LL_OPAMP_Enable( OPAMPParams->OPAMPx_1 );
      }
-     if (OPAMPParams -> OPAMPx_2 != NULL ) 
+     if (OPAMPParams -> OPAMPx_2 != NULL )
      {
       LL_OPAMP_Enable( OPAMPParams->OPAMPx_2 );
      }
-     if (OPAMPParams -> OPAMPx_3 != NULL ) 
+     if (OPAMPParams -> OPAMPx_3 != NULL )
      {
       LL_OPAMP_Enable( OPAMPParams->OPAMPx_3 );
-     }     
+     }
     }
 
     /* Over current protection phase A */
@@ -181,25 +181,25 @@ __weak void R3_2_Init( PWMC_R3_2_Handle_t * pHandle )
       LL_COMP_Enable ( COMP_OVPx );
       LL_COMP_Lock( COMP_OVPx );
     }
-    
+
     if (LL_ADC_IsEnabled (ADCx_1) == 0)
     {
       R3_2_ADCxInit (ADCx_1);
-      /* Only the Interrupt of the first ADC is enabled. 
-       * As Both ADCs are fired by HW at the same moment 
+      /* Only the Interrupt of the first ADC is enabled.
+       * As Both ADCs are fired by HW at the same moment
        * It is safe to consider that both conversion are ready at the same time*/
       LL_ADC_ClearFlag_JEOS( ADCx_1 );
       LL_ADC_EnableIT_JEOS( ADCx_1 );
     }
-    else 
+    else
     {
       /* Nothing to do ADCx_1 already configured */
     }
     if (LL_ADC_IsEnabled (ADCx_2) == 0)
     {
       R3_2_ADCxInit (ADCx_2);
-    }    
-    else 
+    }
+    else
     {
       /* Nothing to do ADCx_2 already configured */
     }
@@ -209,39 +209,39 @@ __weak void R3_2_Init( PWMC_R3_2_Handle_t * pHandle )
 
 static void R3_2_ADCxInit( ADC_TypeDef * ADCx )
 {
-  /* - Exit from deep-power-down mode */     
+  /* - Exit from deep-power-down mode */
   LL_ADC_DisableDeepPowerDown(ADCx);
-   
+
   if ( LL_ADC_IsInternalRegulatorEnabled(ADCx) == 0u)
   {
     /* Enable ADC internal voltage regulator */
     LL_ADC_EnableInternalRegulator(ADCx);
-  
+
     /* Wait for Regulator Startup time, once for both */
     /* Note: Variable divided by 2 to compensate partially              */
     /*       CPU processing cycles, scaling in us split to not          */
     /*       exceed 32 bits register capacity and handle low frequency. */
-    volatile uint32_t wait_loop_index = ((LL_ADC_DELAY_INTERNAL_REGUL_STAB_US / 10UL) * (SystemCoreClock / (100000UL * 2UL)));      
+    volatile uint32_t wait_loop_index = ((LL_ADC_DELAY_INTERNAL_REGUL_STAB_US / 10UL) * (SystemCoreClock / (100000UL * 2UL)));
     while(wait_loop_index != 0UL)
     {
       wait_loop_index--;
     }
   }
-  
+
   LL_ADC_StartCalibration( ADCx, LL_ADC_SINGLE_ENDED );
-  while ( LL_ADC_IsCalibrationOnGoing( ADCx) == 1u) 
+  while ( LL_ADC_IsCalibrationOnGoing( ADCx) == 1u)
   {}
   /* ADC Enable (must be done after calibration) */
-  /* ADC5-140924: Enabling the ADC by setting ADEN bit soon after polling ADCAL=0 
-  * following a calibration phase, could have no effect on ADC 
+  /* ADC5-140924: Enabling the ADC by setting ADEN bit soon after polling ADCAL=0
+  * following a calibration phase, could have no effect on ADC
   * within certain AHB/ADC clock ratio.
   */
-  while (  LL_ADC_IsActiveFlag_ADRDY( ADCx ) == 0u)  
-  { 
+  while (  LL_ADC_IsActiveFlag_ADRDY( ADCx ) == 0u)
+  {
     LL_ADC_Enable(  ADCx );
   }
   /* Clear JSQR from CubeMX setting to avoid not wanting conversion*/
-  LL_ADC_INJ_StartConversion( ADCx ); 
+  LL_ADC_INJ_StartConversion( ADCx );
   LL_ADC_INJ_StopConversion(ADCx);
   /* TODO: check if not already done by MX */
   LL_ADC_INJ_SetQueueMode( ADCx, LL_ADC_INJ_QUEUE_2CONTEXTS_END_EMPTY );
@@ -267,7 +267,7 @@ static void R3_2_TIMxInit( TIM_TypeDef * TIMx, PWMC_Handle_t * pHdl )
   /* disable main TIM counter to ensure
    * a synchronous start by TIM2 trigger */
   LL_TIM_DisableCounter( TIMx );
-  
+
   LL_TIM_SetTriggerOutput(TIMx, LL_TIM_TRGO_RESET);
 
   /* Enables the TIMx Preload on CC1 Register */
@@ -320,14 +320,14 @@ static void R3_2_TIMxInit( TIM_TypeDef * TIMx, PWMC_Handle_t * pHdl )
     }
   }
   LL_TIM_ClearFlag_BRK( TIMx );
-  
+
   if ( ( pHandle->pParams_str->BKIN2Mode ) != NONE )
   {
     while ((LL_TIM_IsActiveFlag_BRK2 (TIMx) == 1u) && (Brk2Timeout != 0u) )
     {
       LL_TIM_ClearFlag_BRK2( TIMx );
       Brk2Timeout--;
-    }   
+    }
   }
   LL_TIM_EnableIT_BRK( TIMx );
 }
@@ -366,13 +366,13 @@ __weak void R3_2_CurrentReadingPolarization( PWMC_Handle_t * pHdl )
   pHandle->_Super.pFctGetPhaseCurrents = &R3_2_HFCurrentsPolarizationAB;
   pHandle->_Super.pFctSetADCSampPointSectX = &R3_2_SetADCSampPointPolarization;
   pHandle->ADC_ExternalPolarityInjected = (uint16_t) LL_ADC_INJ_TRIG_EXT_RISING;
-     
+
   /* We want to polarize calibration Phase A and Phase B, so we select SECTOR_5 */
   pHandle->PolarizationSector=SECTOR_5;
   /* Required to force first polarization conversion on SECTOR_5*/
-  pHandle->_Super.Sector = SECTOR_5;   
+  pHandle->_Super.Sector = SECTOR_5;
   R3_2_SwitchOnPWM( &pHandle->_Super );
-  
+
   /* IF CH4 is enabled, it means that JSQR is now configured to sample polarization current*/
   //while ( LL_TIM_CC_IsEnabledChannel(TIMx, LL_TIM_CHANNEL_CH4) == 0u )
   //{
@@ -384,7 +384,7 @@ __weak void R3_2_CurrentReadingPolarization( PWMC_Handle_t * pHdl )
   /* Start ADC to wait for external trigger. This is series dependant*/
   LL_ADC_INJ_StartConversion( ADCx_1 );
   LL_ADC_INJ_StartConversion( ADCx_2 );
-  
+
   /* Wait for NB_CONVERSIONS to be executed */
   waitForPolarizationEnd( TIMx,
   		                  &pHandle->_Super.SWerror,
@@ -392,16 +392,16 @@ __weak void R3_2_CurrentReadingPolarization( PWMC_Handle_t * pHdl )
   						  &pHandle->PolarizationCounter );
 
   R3_2_SwitchOffPWM( &pHandle->_Super );
-  
+
   /* Offset calibration for C phase */
   pHandle->PolarizationCounter = 0u;
-  
+
   /* Change function to be executed in ADCx_ISR */
   pHandle->_Super.pFctGetPhaseCurrents = &R3_2_HFCurrentsPolarizationC;
   /* We want to polarize Phase C, so we select SECTOR_1 */
   pHandle->PolarizationSector=SECTOR_1;
   /* Required to force first polarization conversion on SECTOR_1*/
-  pHandle->_Super.Sector = SECTOR_1;   
+  pHandle->_Super.Sector = SECTOR_1;
   R3_2_SwitchOnPWM( &pHandle->_Super );
 
   /* Wait for NB_CONVERSIONS to be executed */
@@ -409,7 +409,7 @@ __weak void R3_2_CurrentReadingPolarization( PWMC_Handle_t * pHdl )
   		                  &pHandle->_Super.SWerror,
   						  pHandle->pParams_str->RepetitionCounter,
   						  &pHandle->PolarizationCounter );
-  
+
   R3_2_SwitchOffPWM( &pHandle->_Super );
   pHandle->PhaseAOffset /= NB_CONVERSIONS;
   pHandle->PhaseBOffset /= NB_CONVERSIONS;
@@ -423,22 +423,22 @@ __weak void R3_2_CurrentReadingPolarization( PWMC_Handle_t * pHdl )
      force 50% duty cycle on the three inverer legs */
   /* Disable TIMx preload */
   LL_TIM_OC_DisablePreload(TIMx,  LL_TIM_CHANNEL_CH1);
-  LL_TIM_OC_DisablePreload(TIMx,  LL_TIM_CHANNEL_CH2);  
+  LL_TIM_OC_DisablePreload(TIMx,  LL_TIM_CHANNEL_CH2);
   LL_TIM_OC_DisablePreload(TIMx,  LL_TIM_CHANNEL_CH3);
   LL_TIM_OC_SetCompareCH1 (TIMx, pHandle->Half_PWMPeriod);
   LL_TIM_OC_SetCompareCH2 (TIMx, pHandle->Half_PWMPeriod);
   LL_TIM_OC_SetCompareCH3 (TIMx, pHandle->Half_PWMPeriod);
   /* Enable TIMx preload */
   LL_TIM_OC_EnablePreload(TIMx,  LL_TIM_CHANNEL_CH1);
-  LL_TIM_OC_EnablePreload(TIMx,  LL_TIM_CHANNEL_CH2);  
+  LL_TIM_OC_EnablePreload(TIMx,  LL_TIM_CHANNEL_CH2);
   LL_TIM_OC_EnablePreload(TIMx,  LL_TIM_CHANNEL_CH3);
 
   /* It re-enable drive of TIMx CHy and CHyN by TIMx CHyRef*/
   LL_TIM_CC_EnableChannel(TIMx, TIMxCCER_MASK_CH123);
-  
+
   /* At the end of calibration, all phases are at 50% we will sample A&B */
   pHandle->_Super.Sector=SECTOR_5;
-  
+
   pHandle->BrakeActionLock = false;
 
 }
@@ -454,13 +454,13 @@ __attribute__( ( section ( ".ccmram" ) ) )
   * @brief  It computes and return latest converted motor phase currents motor
   * @param  pHdl: handler of the current instance of the PWM component
   * @retval Ia and Ib current in Curr_Components format
-  */ 
+  */
 __weak void R3_2_GetPhaseCurrents( PWMC_Handle_t * pHdl, ab_t * Iab )
 {
 #if defined (__ICCARM__)
   #pragma cstat_disable = "MISRAC2012-Rule-11.3"
 #endif /* __ICCARM__ */
-  PWMC_R3_2_Handle_t * pHandle = ( PWMC_R3_2_Handle_t * )pHdl;  
+  PWMC_R3_2_Handle_t * pHandle = ( PWMC_R3_2_Handle_t * )pHdl;
 #if defined (__ICCARM__)
   #pragma cstat_restore = "MISRAC2012-Rule-11.3"
 #endif /* __ICCARM__ */
@@ -470,15 +470,15 @@ __weak void R3_2_GetPhaseCurrents( PWMC_Handle_t * pHdl, ab_t * Iab )
   int32_t Aux;
   uint32_t ADCDataReg1;
   uint32_t ADCDataReg2;
-  
+
   Sector = ( uint8_t )pHandle->_Super.Sector;
   ADCDataReg1 = *pHandle->pParams_str->ADCDataReg1[Sector];
   ADCDataReg2 = *pHandle->pParams_str->ADCDataReg2[Sector];
-  
+
   /* disable ADC trigger source */
-  //LL_TIM_CC_DisableChannel(TIMx, LL_TIM_CHANNEL_CH4);  
+  //LL_TIM_CC_DisableChannel(TIMx, LL_TIM_CHANNEL_CH4);
   LL_TIM_SetTriggerOutput(TIMx, LL_TIM_TRGO_RESET);
-  
+
   switch ( Sector )
   {
     case SECTOR_4:
@@ -774,7 +774,7 @@ static void R3_2_HFCurrentsPolarizationAB( PWMC_Handle_t * pHdl, ab_t * Iab )
   TIM_TypeDef * TIMx = pHandle->pParams_str->TIMx;
   uint32_t ADCDataReg1 = *pHandle->pParams_str->ADCDataReg1[pHandle->PolarizationSector];
   uint32_t ADCDataReg2 = *pHandle->pParams_str->ADCDataReg2[pHandle->PolarizationSector];
-   
+
   /* disable ADC trigger source */
   //LL_TIM_CC_DisableChannel(TIMx, LL_TIM_CHANNEL_CH4);
     LL_TIM_SetTriggerOutput(TIMx, LL_TIM_TRGO_RESET);
@@ -819,7 +819,7 @@ static void R3_2_HFCurrentsPolarizationC( PWMC_Handle_t * pHdl, ab_t * Iab )
   if ( pHandle->PolarizationCounter < NB_CONVERSIONS )
   {
     /* Phase C is read from SECTOR_1, second value */
-    pHandle-> PhaseCOffset += ADCDataReg2;    
+    pHandle-> PhaseCOffset += ADCDataReg2;
     pHandle->PolarizationCounter++;
   }
 
@@ -951,7 +951,7 @@ __weak void R3_2_SwitchOffPWM( PWMC_Handle_t * pHdl )
   LL_TIM_DisableIT_UPDATE( TIMx );
 
   pHandle->_Super.TurnOnLowSidesAction = false;
-  
+
   /* Main PWM Output Disable */
   LL_TIM_DisableAllOutputs( TIMx );
   if ( pHandle->BrakeActionLock == true )
@@ -998,10 +998,10 @@ __weak void * R3_2_TIMx_UP_IRQHandler( PWMC_R3_2_Handle_t * pHandle )
   R3_3_OPAMPParams_t * OPAMPParams = pHandle->pParams_str->OPAMPParams;
   OPAMP_TypeDef * Opamp;
   uint32_t OpampConfig;
-  
+
   if ( OPAMPParams != NULL )
   {
-  /* We can not change OPAMP source if ADC acquisition is ongoing (Dual motor with internal opamp use case)*/  
+  /* We can not change OPAMP source if ADC acquisition is ongoing (Dual motor with internal opamp use case)*/
     while (ADCx_1->JSQR != 0x0u)
     {}
   /* We need to manage the Operational amplifier internal output enable - Dedicated to G4 and the VPSEL selection */
@@ -1018,15 +1018,15 @@ __weak void * R3_2_TIMx_UP_IRQHandler( PWMC_R3_2_Handle_t * pHandle )
       MODIFY_REG (Opamp->CSR, (OPAMP_CSR_OPAMPINTEN | OPAMP_CSR_VPSEL ), OpampConfig);
     }
   }
- 
+
   ADCx_1->JSQR = pHandle->pParams_str->ADCConfig1[pHandle->_Super.Sector] | (uint32_t) pHandle->ADC_ExternalPolarityInjected;
   ADCx_2->JSQR = pHandle->pParams_str->ADCConfig2[pHandle->_Super.Sector] | (uint32_t) pHandle->ADC_ExternalPolarityInjected;
 
   /* enable ADC trigger source */
-  
+
   //LL_TIM_CC_EnableChannel(TIMx, LL_TIM_CHANNEL_CH4);
   LL_TIM_SetTriggerOutput(TIMx, LL_TIM_TRGO_OC4REF);
-    
+
   pHandle->ADC_ExternalPolarityInjected = (uint16_t)LL_ADC_INJ_TRIG_EXT_RISING;
 
   return &( pHandle->_Super.Motor );
@@ -1132,10 +1132,10 @@ static void R3_2_SetAOReferenceVoltage( uint32_t DAC_Channel, DAC_TypeDef * DACx
 
   /* Enable DAC Channel */
   LL_DAC_TrigSWConversion ( DACx, DAC_Channel );
-  
+
   if (LL_DAC_IsEnabled ( DACx, DAC_Channel ) == 1u )
   { /* If DAC is already enable, we wait LL_DAC_DELAY_VOLTAGE_SETTLING_US*/
-    uint32_t wait_loop_index = ((LL_DAC_DELAY_VOLTAGE_SETTLING_US) * (SystemCoreClock / (1000000UL * 2UL)));      
+    uint32_t wait_loop_index = ((LL_DAC_DELAY_VOLTAGE_SETTLING_US) * (SystemCoreClock / (1000000UL * 2UL)));
     while(wait_loop_index != 0UL)
     {
       wait_loop_index--;
@@ -1145,11 +1145,11 @@ static void R3_2_SetAOReferenceVoltage( uint32_t DAC_Channel, DAC_TypeDef * DACx
   {
     /* If DAC is not enabled, we must wait LL_DAC_DELAY_STARTUP_VOLTAGE_SETTLING_US*/
     LL_DAC_Enable ( DACx, DAC_Channel );
-    uint32_t wait_loop_index = ((LL_DAC_DELAY_STARTUP_VOLTAGE_SETTLING_US) * (SystemCoreClock / (1000000UL * 2UL)));      
+    uint32_t wait_loop_index = ((LL_DAC_DELAY_STARTUP_VOLTAGE_SETTLING_US) * (SystemCoreClock / (1000000UL * 2UL)));
     while(wait_loop_index != 0UL)
     {
       wait_loop_index--;
-    }    
+    }
   }
 }
 
@@ -1169,7 +1169,7 @@ void R3_2_RLDetectionModeEnable( PWMC_Handle_t * pHdl )
   #pragma cstat_restore = "MISRAC2012-Rule-11.3"
 #endif /* __ICCARM__ */
   TIM_TypeDef * TIMx = pHandle->pParams_str->TIMx;
-  
+
   if ( pHandle->_Super.RLDetectionMode == false )
   {
     /*  Channel1 configuration */
@@ -1376,8 +1376,8 @@ static void R3_2_RLGetPhaseCurrents( PWMC_Handle_t * pHdl, ab_t * pStator_Curren
   /* disable ADC trigger source */
   LL_TIM_SetTriggerOutput(TIMx, LL_TIM_TRGO_RESET);
 
-  wAux = (int32_t)( pHandle->PhaseBOffset ) - (int32_t) *pHandle->pParams_str->ADCDataReg2[pHandle->_Super.Sector]; 
-  
+  wAux = (int32_t)( pHandle->PhaseBOffset ) - (int32_t) *pHandle->pParams_str->ADCDataReg2[pHandle->_Super.Sector];
+
   /* Check saturation */
   if ( wAux > -INT16_MAX )
   {
@@ -1474,7 +1474,7 @@ static void R3_2_RLSwitchOnPWM( PWMC_Handle_t * pHdl )
 
   /* enable TIMx update interrupt*/
   LL_TIM_EnableIT_UPDATE( TIMx );
-  
+
   /* Main PWM Output Enable */
   TIMx->BDTR |= LL_TIM_OSSI_ENABLE ;
   LL_TIM_EnableAllOutputs( TIMx );

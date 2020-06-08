@@ -77,25 +77,25 @@ __attribute__((section (".ccmram")))
   * @param  None
   * @retval None
   */
-void ADC1_2_IRQHandler(void)
-{
-  /* USER CODE BEGIN ADC1_2_IRQn 0 */
+// void ADC1_2_IRQHandler(void)
+// {
+//   /* USER CODE BEGIN ADC1_2_IRQn 0 */
 
-  /* USER CODE END ADC1_2_IRQn 0 */
+//   /* USER CODE END ADC1_2_IRQn 0 */
 
-  // Clear Flags M1
-  LL_ADC_ClearFlag_JEOS( ADC1 );
+//   // Clear Flags M1
+//   LL_ADC_ClearFlag_JEOS( ADC1 );
 
-  // Highfrequency task
-  TSK_HighFrequencyTask();
- /* USER CODE BEGIN HighFreq */
+//   // Highfrequency task
+//   TSK_HighFrequencyTask();
+//  /* USER CODE BEGIN HighFreq */
 
- /* USER CODE END HighFreq  */
+//  /* USER CODE END HighFreq  */
 
- /* USER CODE BEGIN ADC1_2_IRQn 1 */
+//  /* USER CODE BEGIN ADC1_2_IRQn 1 */
 
- /* USER CODE END ADC1_2_IRQn 1 */
-}
+//  /* USER CODE END ADC1_2_IRQn 1 */
+// }
 
 #if defined (CCMRAM)
 #if defined (__ICCARM__)
@@ -310,7 +310,10 @@ static uint8_t SystickDividerCounter = SYSTICK_DIVIDER;
 
 
 /* USER CODE BEGIN 1 */
-
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+	TSK_HighFrequencyTask();
+}
 /* USER CODE END 1 */
 
 /**
