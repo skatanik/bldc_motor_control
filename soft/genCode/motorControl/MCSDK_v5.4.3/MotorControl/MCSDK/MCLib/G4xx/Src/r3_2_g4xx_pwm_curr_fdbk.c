@@ -381,9 +381,9 @@ __weak void R3_2_CurrentReadingPolarization( PWMC_Handle_t * pHdl )
   //while ( LL_TIM_CC_IsEnabledChannel(TIMx, LL_TIM_CHANNEL_CH4) == 0u )
   //{
   //}
-  while ( ((TIMx->CR2) & TIM_CR2_MMS_Msk) != LL_TIM_TRGO_OC4REF )
-  {
-  }
+//  while ( ((TIMx->CR2) & TIM_CR2_MMS_Msk) != LL_TIM_TRGO_OC4REF )
+//  {
+//  }
   /* It is the right time to start the ADC without unwanted conversion */
   /* Start ADC to wait for external trigger. This is series dependant*/
 //   LL_ADC_INJ_StartConversion( ADCx_1 );
