@@ -102,14 +102,14 @@ __weak void R3_2_Init( PWMC_R3_2_Handle_t * pHandle )
   {
     /* disable IT and flags in case of LL driver usage
      * workaround for unwanted interrupt enabling done by LL driver */
-    LL_ADC_DisableIT_EOC( ADCx_1 );
-    LL_ADC_ClearFlag_EOC( ADCx_1 );
-    LL_ADC_DisableIT_JEOC( ADCx_1 );
-    LL_ADC_ClearFlag_JEOC( ADCx_1 );
-    LL_ADC_DisableIT_EOC( ADCx_2 );
-    LL_ADC_ClearFlag_EOC( ADCx_2 );
-    LL_ADC_DisableIT_JEOC( ADCx_2 );
-    LL_ADC_ClearFlag_JEOC( ADCx_2 );
+    // LL_ADC_DisableIT_EOC( ADCx_1 );
+    // LL_ADC_ClearFlag_EOC( ADCx_1 );
+    // LL_ADC_DisableIT_JEOC( ADCx_1 );
+    // LL_ADC_ClearFlag_JEOC( ADCx_1 );
+    // LL_ADC_DisableIT_EOC( ADCx_2 );
+    // LL_ADC_ClearFlag_EOC( ADCx_2 );
+    // LL_ADC_DisableIT_JEOC( ADCx_2 );
+    // LL_ADC_ClearFlag_JEOC( ADCx_2 );
 
     if ( TIMx == TIM1 )
     {
@@ -375,7 +375,6 @@ __weak void R3_2_CurrentReadingPolarization( PWMC_Handle_t * pHdl )
   pHandle->PolarizationSector=SECTOR_5;
   /* Required to force first polarization conversion on SECTOR_5*/
   pHandle->_Super.Sector = SECTOR_5;
-  R3_2_SwitchOnPWM( &pHandle->_Super );
 
   /* IF CH4 is enabled, it means that JSQR is now configured to sample polarization current*/
   //while ( LL_TIM_CC_IsEnabledChannel(TIMx, LL_TIM_CHANNEL_CH4) == 0u )
@@ -393,6 +392,9 @@ HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcRawData, 2);
 HAL_ADC_Start_DMA(&hadc2, (uint32_t *)&adcRawData[2], 1);
 __HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_HT);
 __HAL_DMA_DISABLE_IT(&hdma_adc2, DMA_IT_HT);
+
+R3_2_SwitchOnPWM( &pHandle->_Super );
+
 
   /* Wait for NB_CONVERSIONS to be executed */
   waitForPolarizationEnd( TIMx,
@@ -754,6 +756,7 @@ __STATIC_INLINE uint16_t R3_2_WriteTIMRegisters( PWMC_Handle_t * pHdl, uint16_t 
 //  if ( LL_TIM_CC_IsEnabledChannel(TIMx, LL_TIM_CHANNEL_CH4) == 1u )
   if (((TIMx->CR2) & TIM_CR2_MMS_Msk) != LL_TIM_TRGO_RESET )
   {
+    // LL_TIM_SetTriggerOutput(TIMx, LL_TIM_TRGO_OC4REF); // Enable trigger output back
     Aux = MC_FOC_DURATION;
   }
   else
@@ -1508,12 +1511,10 @@ static void R3_2_RLSwitchOnPWM( PWMC_Handle_t * pHdl )
   /* set the sector that correspond to Phase B and C sampling
    * B will be sampled by ADCx_1 */
   pHdl->Sector = SECTOR_4;
-
-HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcRawData, 2);
-HAL_ADC_Start_DMA(&hadc2, (uint32_t *)&adcRawData[2], 1);
-__HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_HT);
-__HAL_DMA_DISABLE_IT(&hdma_adc2, DMA_IT_HT);
-
+// HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adcRawData, 2);
+// HAL_ADC_Start_DMA(&hadc2, (uint32_t *)&adcRawData[2], 1);
+// __HAL_DMA_DISABLE_IT(&hdma_adc1, DMA_IT_HT);
+// __HAL_DMA_DISABLE_IT(&hdma_adc2, DMA_IT_HT);
   return;
 }
 

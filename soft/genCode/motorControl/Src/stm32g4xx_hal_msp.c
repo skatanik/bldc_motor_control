@@ -147,8 +147,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     __HAL_LINKDMA(hadc,DMA_Handle,hdma_adc1);
 
     /* ADC1 interrupt Init */
-    HAL_NVIC_SetPriority(ADC1_2_IRQn, 2, 0);
-    HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
+//    HAL_NVIC_SetPriority(ADC1_2_IRQn, 2, 0);
+//    HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
   /* USER CODE BEGIN ADC1_MspInit 1 */
 
   /* USER CODE END ADC1_MspInit 1 */
@@ -192,8 +192,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     __HAL_LINKDMA(hadc,DMA_Handle,hdma_adc2);
 
     /* ADC2 interrupt Init */
-    HAL_NVIC_SetPriority(ADC1_2_IRQn, 2, 0);
-    HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
+//    HAL_NVIC_SetPriority(ADC1_2_IRQn, 2, 0);
+//    HAL_NVIC_EnableIRQ(ADC1_2_IRQn);
   /* USER CODE BEGIN ADC2_MspInit 1 */
 
   /* USER CODE END ADC2_MspInit 1 */
