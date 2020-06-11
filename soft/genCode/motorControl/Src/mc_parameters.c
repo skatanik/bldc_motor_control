@@ -34,7 +34,7 @@
 
 
 /* USER CODE BEGIN Additional include */
-  uint16_t adcRawData[3];
+ volatile uint32_t adcRawData[3];
 /* USER CODE END Additional include */
 
 #define FREQ_RATIO 1                /* Dummy value for single drive */
@@ -108,19 +108,19 @@ R3_2_Params_t R3_2_ParamsM1 =
                  , MC_ADC_CHANNEL_3<<ADC_JSQR_JSQ1_Pos | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
                  , MC_ADC_CHANNEL_3<<ADC_JSQR_JSQ1_Pos | (LL_ADC_INJ_TRIG_EXT_TIM1_TRGO & ~ADC_INJ_TRIG_EXT_EDGE_DEFAULT)
                  },
-  .ADCDataReg1 = { (uint32_t volatile * )&adcRawData[2] //ADC2->JDR1 // Phase B,
-                 , (uint32_t volatile * )&adcRawData[0] //ADC1->JDR1 // Phase A,
-                 , (uint32_t volatile * )&adcRawData[0] //ADC1->JDR1 // Phase A,
-                 , (uint32_t volatile * )&adcRawData[0] //ADC1->JDR1 // Phase A,
-                 , (uint32_t volatile * )&adcRawData[0] //ADC1->JDR1 // Phase A,
-                 , (uint32_t volatile * )&adcRawData[2] //ADC2->JDR1 // Phase B,
+  .ADCDataReg1 = { &(adcRawData[2]) //ADC2->JDR1 // Phase B,
+                 , &(adcRawData[0]) //ADC1->JDR1 // Phase A,
+                 , &(adcRawData[0]) //ADC1->JDR1 // Phase A,
+                 , &(adcRawData[0]) //ADC1->JDR1 // Phase A,
+                 , &(adcRawData[0]) //ADC1->JDR1 // Phase A,
+                 , &(adcRawData[2]) //ADC2->JDR1 // Phase B,
                  },
-  .ADCDataReg2 = { (uint32_t volatile * )&adcRawData[1] //ADC1->JDR1 // Phase C
-                 , (uint32_t volatile * )&adcRawData[1] //ADC2->JDR1 // Phase C
-                 , (uint32_t volatile * )&adcRawData[1] //ADC2->JDR1 // Phase C
-                 , (uint32_t volatile * )&adcRawData[2] //ADC2->JDR1 // Phase B
-                 , (uint32_t volatile * )&adcRawData[2] //ADC2->JDR1 // Phase B
-                 , (uint32_t volatile * )&adcRawData[1] //ADC1->JDR1 // Phase C
+  .ADCDataReg2 = { &(adcRawData[1]) //ADC1->JDR1 // Phase C
+                 , &(adcRawData[1]) //ADC2->JDR1 // Phase C
+                 , &(adcRawData[1]) //ADC2->JDR1 // Phase C
+                 , &(adcRawData[2]) //ADC2->JDR1 // Phase B
+                 , &(adcRawData[2]) //ADC2->JDR1 // Phase B
+                 , &(adcRawData[1]) //ADC1->JDR1 // Phase C
                  },
   /* PWM generation parameters --------------------------------------------------*/
   .RepetitionCounter = REP_COUNTER,

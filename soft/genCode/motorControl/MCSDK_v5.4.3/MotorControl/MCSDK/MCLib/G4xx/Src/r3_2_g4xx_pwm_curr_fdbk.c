@@ -53,7 +53,7 @@
  *
  * @{
  */
-extern uint16_t adcRawData[3];
+extern volatile uint32_t adcRawData[3];
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern DMA_HandleTypeDef hdma_adc1;
