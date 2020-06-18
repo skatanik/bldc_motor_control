@@ -359,7 +359,7 @@ __weak void TSK_MediumFrequencyTaskM1(void)
 
       /* USER CODE END MediumFrequencyTask M1 Encoder Restart */
 
-      STM_NextState( &STM[M1], IDLE_START );
+    //   STM_NextState( &STM[M1], IDLE_START );
     // }
     break;
 

@@ -85,7 +85,7 @@ __weak bool STM_NextState( STM_Handle_t * pHandle, State_t bState )
       }
       break;
     case IDLE:
-      if ( ( bState == IDLE_START ) || ( bState == IDLE_ALIGNMENT )
+      if ( ( bState == IDLE_START )
            || ( bState == ICLWAIT ) )
       {
         bNewState = bState;
@@ -93,51 +93,51 @@ __weak bool STM_NextState( STM_Handle_t * pHandle, State_t bState )
       }
       break;
 
-    case IDLE_ALIGNMENT:
-      if ( ( bState == ANY_STOP ) || ( bState == ALIGN_CHARGE_BOOT_CAP )
-           || ( bState == ALIGN_OFFSET_CALIB ) )
-      {
-        bNewState = bState;
-        bChangeState = true;
-      }
-      break;
+    // case IDLE_ALIGNMENT:
+    //   if ( ( bState == ANY_STOP ) || ( bState == ALIGN_CHARGE_BOOT_CAP )
+    //        || ( bState == ALIGN_OFFSET_CALIB ) )
+    //   {
+    //     bNewState = bState;
+    //     bChangeState = true;
+    //   }
+    //   break;
 
-    case ALIGN_CHARGE_BOOT_CAP:
-      if ( ( bState == ALIGN_OFFSET_CALIB ) || ( bState == ANY_STOP ) )
-      {
-        bNewState = bState;
-        bChangeState = true;
-      }
-      break;
+    // case ALIGN_CHARGE_BOOT_CAP:
+    //   if ( ( bState == ALIGN_OFFSET_CALIB ) || ( bState == ANY_STOP ) )
+    //   {
+    //     bNewState = bState;
+    //     bChangeState = true;
+    //   }
+    //   break;
 
-    case ALIGN_OFFSET_CALIB:
-      if ( ( bState == ALIGN_CLEAR ) || ( bState == ANY_STOP ) )
-      {
-        bNewState = bState;
-        bChangeState = true;
-      }
-      break;
+    // case ALIGN_OFFSET_CALIB:
+    //   if ( ( bState == ALIGN_CLEAR ) || ( bState == ANY_STOP ) )
+    //   {
+    //     bNewState = bState;
+    //     bChangeState = true;
+    //   }
+    //   break;
 
-    case ALIGN_CLEAR:
-      if ( ( bState == ALIGNMENT ) || ( bState == ANY_STOP ) )
-      {
-        bNewState = bState;
-        bChangeState = true;
-      }
-      break;
+    // case ALIGN_CLEAR:
+    //   if ( ( bState == ALIGNMENT ) || ( bState == ANY_STOP ) )
+    //   {
+    //     bNewState = bState;
+    //     bChangeState = true;
+    //   }
+    //   break;
 
-    case ALIGNMENT:
-      if ( bState == ANY_STOP )
-      {
-        bNewState = bState;
-        bChangeState = true;
-      }
-      break;
+    // case ALIGNMENT:
+    //   if ( bState == ANY_STOP )
+    //   {
+    //     bNewState = bState;
+    //     bChangeState = true;
+    //   }
+    //   break;
 
     case IDLE_START:
       if ( ( bState == ANY_STOP ) || ( bState == CHARGE_BOOT_CAP ) ||
            ( bState == START ) ||
-           ( bState == OFFSET_CALIB ) || ( bState == IDLE_ALIGNMENT ) )
+           ( bState == OFFSET_CALIB ) )
       {
         bNewState = bState;
         bChangeState = true;
