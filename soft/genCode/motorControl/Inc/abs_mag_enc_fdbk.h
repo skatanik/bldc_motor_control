@@ -61,6 +61,7 @@ typedef struct
     int16_t prevMecAngle;
     uint16_t pollPeriodTicks;
     uint16_t timPrescaler;
+    uint16_t prevSpeed;
 
 } ABS_ENCODER_Handle_t;
 

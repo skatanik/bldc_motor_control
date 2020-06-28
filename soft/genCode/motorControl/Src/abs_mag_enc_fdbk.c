@@ -32,16 +32,61 @@ void ABS_ENC_Init( ABS_ENCODER_Handle_t * pHandle )
 
 bool ABS_ENC_CalcAvrgMecSpeedUnit( ABS_ENCODER_Handle_t * pHandle, int16_t * pMecSpeedUnit )
 {
-    uint16_t newPos;
+    int newPos;
+    int shiftVal;
     int16_t digitDiff;
+    int oppositeVal;
     float digitSpeed;
+    bool eq1;
+    bool eq2;
 
-    newPos = pHandle->rawPosition;
-    digitDiff = newPos - pHandle->prevRawPosition;
-    pHandle->prevRawPosition = newPos;
+    newPos = pHandle->rawPosition - 2048;
+    shiftVal = pHandle->prevRawPosition - 2048;
+    eq1 = newPos >= shiftVal;
+    if(shiftVal >= 0)
+    {
+        oppositeVal = shiftVal - 2048;
+        if(eq1 || (newPos <= oppositeVal))
+        {
+            if(newPos >= 0)
+            {
+                digitDiff = newPos - shiftVal;
+            } else
+            {
+                digitDiff =  4095 - shiftVal + newPos; //2047 - shiftVal - (-2048 - newPos);
+            }
+        } else if(!eq1 || (newPos > oppositeVal))
+        {
+            if(newPos >= 0)
+            {
+                digitDiff = newPos - shiftVal;
+            } else
+            {
+                digitDiff = shiftVal - newPos;
+            }
+        }
+    }
+    else
+    {
+        oppositeVal = shiftVal + 2047;
+        if(eq1 || (newPos <= oppositeVal))
+        {
+            digitDiff = newPos - shiftVal;
+        } else if(!eq1 || (newPos > oppositeVal))
+        {
+            if(newPos >= 0)
+            {
+                digitDiff = 4095 - newPos + shiftVal; //2047 - newPos - (-2048 - shiftVal);
+            } else
+            {
+                digitDiff = newPos - shiftVal;
+            }
+        }
+    }
 
+    pHandle->prevRawPosition = pHandle->rawPosition;
     *pMecSpeedUnit = pHandle->SpeedSamplingFreqUnit;
-    digitSpeed = ((float)digitDiff / 4096.0) * pHandle->SpeedSamplingFreqHz * SPEED_UNIT;
+    digitSpeed = ((float)digitDiff / 4095.0) * pHandle->SpeedSamplingFreqHz * SPEED_UNIT;
     pHandle->_Super.hAvrMecSpeedUnit = (int16_t)round(digitSpeed);
 
 }

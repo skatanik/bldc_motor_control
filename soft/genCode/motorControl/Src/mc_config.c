@@ -300,6 +300,8 @@ ABS_ENCODER_Handle_t ABS_ENCODER_M1 =
 
   .pollPeriodTicks      = 50, // 10 kHz
   .timPrescaler         = 170, // get us precision
+  .posOffset            = 0, //282,
+  .prevSpeed            = 0
 
 };
 /* USER CODE END Additional configuration */

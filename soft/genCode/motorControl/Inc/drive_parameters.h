@@ -31,24 +31,24 @@
 /******** MAIN AND AUXILIARY SPEED/POSITION SENSOR(S) SETTINGS SECTION ********/
 
 /*** Speed measurement settings ***/
-#define MAX_APPLICATION_SPEED_RPM       300 /*!< rpm, mechanical */
-#define MIN_APPLICATION_SPEED_RPM       0 /*!< rpm, mechanical,  
+#define MAX_APPLICATION_SPEED_RPM       600 /*!< rpm, mechanical */
+#define MIN_APPLICATION_SPEED_RPM       0 /*!< rpm, mechanical,
                                                            absolute value */
-#define MEAS_ERRORS_BEFORE_FAULTS       3 /*!< Number of speed  
-                                                             measurement errors before 
+#define MEAS_ERRORS_BEFORE_FAULTS       3 /*!< Number of speed
+                                                             measurement errors before
                                                              main sensor goes in fault */
-/*** Encoder **********************/                                                                                                           
-#define ENC_MEAS_ERRORS_BEFORE_FAULTS   3 /*!< Number of failed   
-                                                        derived class specific speed 
-                                                        measurements before main sensor  
+/*** Encoder **********************/
+#define ENC_MEAS_ERRORS_BEFORE_FAULTS   3 /*!< Number of failed
+                                                        derived class specific speed
+                                                        measurements before main sensor
                                                         goes in fault */
 
-#define ENC_INVERT_SPEED                DISABLE  /*!< To be enabled for  
-                                                            encoder (main or aux) if  
-                                                            measured speed is opposite 
-                                                            to real one */        
-#define ENC_AVERAGING_FIFO_DEPTH        16 /*!< depth of the FIFO used to 
-                                                              average mechanical speed in 
+#define ENC_INVERT_SPEED                DISABLE  /*!< To be enabled for
+                                                            encoder (main or aux) if
+                                                            measured speed is opposite
+                                                            to real one */
+#define ENC_AVERAGING_FIFO_DEPTH        16 /*!< depth of the FIFO used to
+                                                              average mechanical speed in
                                                               0.1Hz resolution */
 
 /* USER CODE BEGIN angle reconstruction M1 */
@@ -63,15 +63,15 @@
 #define PWM_FREQ_SCALING 1
 
 #define LOW_SIDE_SIGNALS_ENABLING        LS_PWM_TIMER
-#define SW_DEADTIME_NS                   800 /*!< Dead-time to be inserted  
-                                                           by FW, only if low side 
+#define SW_DEADTIME_NS                   800 /*!< Dead-time to be inserted
+                                                           by FW, only if low side
                                                            signals are enabled */
-                                                                                         
+
 /* Torque and flux regulation loops */
-#define REGULATION_EXECUTION_RATE     1    /*!< FOC execution rate in 
-                                                           number of PWM cycles */     
+#define REGULATION_EXECUTION_RATE     1    /*!< FOC execution rate in
+                                                           number of PWM cycles */
 /* Gains values for torque and flux control loops */
-#define PID_TORQUE_KP_DEFAULT         2098       
+#define PID_TORQUE_KP_DEFAULT         2098
 #define PID_TORQUE_KI_DEFAULT         3516
 #define PID_TORQUE_KD_DEFAULT         100
 #define PID_FLUX_KP_DEFAULT           2098
@@ -87,10 +87,10 @@
 #define TF_KDDIV_LOG                  LOG2(8192)
 #define TFDIFFERENTIAL_TERM_ENABLING  DISABLE
 
-/* Speed control loop */ 
-#define SPEED_LOOP_FREQUENCY_HZ       1000 /*!<Execution rate of speed   
+/* Speed control loop */
+#define SPEED_LOOP_FREQUENCY_HZ       1000 /*!<Execution rate of speed
                                                       regulation loop (Hz) */
-                                        
+
 #define PID_SPEED_KP_DEFAULT          1000/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
 #define PID_SPEED_KI_DEFAULT          700/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
 #define PID_SPEED_KD_DEFAULT          0/(SPEED_UNIT/10) /* Workbench compute the gain for 01Hz unit*/
@@ -110,7 +110,7 @@
 #define IQMAX                          543
 
 /* Default settings */
-#define DEFAULT_CONTROL_MODE           STC_SPEED_MODE /*!< STC_TORQUE_MODE or 
+#define DEFAULT_CONTROL_MODE           STC_SPEED_MODE /*!< STC_TORQUE_MODE or
                                                         STC_SPEED_MODE */
 #define DEFAULT_TARGET_SPEED_RPM      1300
 #define DEFAULT_TARGET_SPEED_UNIT      (DEFAULT_TARGET_SPEED_RPM*SPEED_UNIT/_RPM)
@@ -120,13 +120,13 @@
 /**************************    FIRMWARE PROTECTIONS SECTION   *****************/
 #define OV_VOLTAGE_PROT_ENABLING        ENABLE
 #define UV_VOLTAGE_PROT_ENABLING        ENABLE
-#define OV_VOLTAGE_THRESHOLD_V          24 /*!< Over-voltage 
+#define OV_VOLTAGE_THRESHOLD_V          24 /*!< Over-voltage
                                                          threshold */
-#define UD_VOLTAGE_THRESHOLD_V          11 /*!< Under-voltage 
+#define UD_VOLTAGE_THRESHOLD_V          11 /*!< Under-voltage
                                                           threshold */
 #if 0
-#define ON_OVER_VOLTAGE                 TURN_OFF_PWM /*!< TURN_OFF_PWM, 
-                                                         TURN_ON_R_BRAKE or 
+#define ON_OVER_VOLTAGE                 TURN_OFF_PWM /*!< TURN_OFF_PWM,
+                                                         TURN_ON_R_BRAKE or
                                                          TURN_ON_LOW_SIDES */
 #endif /* 0 */
 #define R_BRAKE_SWITCH_OFF_THRES_V      19
@@ -134,22 +134,22 @@
 #define OV_TEMPERATURE_THRESHOLD_C      70 /*!< Celsius degrees */
 #define OV_TEMPERATURE_HYSTERESIS_C     10 /*!< Celsius degrees */
 
-#define HW_OV_CURRENT_PROT_BYPASS       DISABLE /*!< In case ON_OVER_VOLTAGE  
+#define HW_OV_CURRENT_PROT_BYPASS       DISABLE /*!< In case ON_OVER_VOLTAGE
                                                           is set to TURN_ON_LOW_SIDES
                                                           this feature may be used to
                                                           bypass HW over-current
-                                                          protection (if supported by 
+                                                          protection (if supported by
                                                           power stage) */
 /******************************   START-UP PARAMETERS   **********************/
 /* Encoder alignment */
 #define ALIGNMENT_DURATION              700 /*!< milliseconds */
 #define ALIGNMENT_ANGLE_DEG             90 /*!< degrees [0...359] */
 #define FINAL_I_ALIGNMENT               339 /*!< s16A */
-// With ALIGNMENT_ANGLE_DEG equal to 90 degrees final alignment 
-// phase current = (FINAL_I_ALIGNMENT * 1.65/ Av)/(32767 * Rshunt)  
+// With ALIGNMENT_ANGLE_DEG equal to 90 degrees final alignment
+// phase current = (FINAL_I_ALIGNMENT * 1.65/ Av)/(32767 * Rshunt)
 // being Av the voltage gain between Rshunt and A/D input
 
-#define TRANSITION_DURATION            0  /* Switch over duration, ms */ 
+#define TRANSITION_DURATION            0  /* Switch over duration, ms */
 /******************************   Current sensing Motor 1   **********************/
 #define ADC_SAMPLING_CYCLES (12 + SAMPLING_CYCLE_CORRECTION)
 
