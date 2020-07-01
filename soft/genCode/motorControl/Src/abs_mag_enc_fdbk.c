@@ -37,58 +37,54 @@ bool ABS_ENC_CalcAvrgMecSpeedUnit( ABS_ENCODER_Handle_t * pHandle, int16_t * pMe
     int16_t digitDiff;
     int oppositeVal;
     float digitSpeed;
-    bool eq1;
     bool eq2;
 
     newPos = pHandle->rawPosition - 2048;
     shiftVal = pHandle->prevRawPosition - 2048;
-    eq1 = newPos >= shiftVal;
     if(shiftVal >= 0)
     {
         oppositeVal = shiftVal - 2048;
-        if(eq1 || (newPos <= oppositeVal))
+        if(newPos < 0)
         {
-            if(newPos >= 0)
+            if(newPos <= oppositeVal)
             {
-                digitDiff = newPos - shiftVal;
+                digitDiff = - 4096 - newPos + shiftVal;
             } else
             {
-                digitDiff =  4095 - shiftVal + newPos; //2047 - shiftVal - (-2048 - newPos);
+                digitDiff = -shiftVal + newPos;
             }
-        } else if(!eq1 || (newPos > oppositeVal))
+        } else
         {
-            if(newPos >= 0)
-            {
-                digitDiff = newPos - shiftVal;
-            } else
-            {
-                digitDiff = shiftVal - newPos;
-            }
+            digitDiff = newPos - shiftVal;
         }
     }
     else
     {
-        oppositeVal = shiftVal + 2047;
-        if(eq1 || (newPos <= oppositeVal))
+        oppositeVal = shiftVal + 2048;
+        if(newPos >=0)
         {
-            digitDiff = newPos - shiftVal;
-        } else if(!eq1 || (newPos > oppositeVal))
-        {
-            if(newPos >= 0)
-            {
-                digitDiff = 4095 - newPos + shiftVal; //2047 - newPos - (-2048 - shiftVal);
-            } else
+            if(newPos <= oppositeVal)
             {
                 digitDiff = newPos - shiftVal;
+            } else
+            {
+                digitDiff = - 4096 + newPos - shiftVal;
             }
+        } else
+        {
+            digitDiff = newPos - shiftVal;
         }
+
     }
 
-    pHandle->prevRawPosition = pHandle->rawPosition;
     *pMecSpeedUnit = pHandle->SpeedSamplingFreqUnit;
-    digitSpeed = ((float)digitDiff / 4095.0) * pHandle->SpeedSamplingFreqHz * SPEED_UNIT;
+    digitSpeed = ((float)digitDiff / 4096.0) * pHandle->SpeedSamplingFreqHz * SPEED_UNIT;
     pHandle->_Super.hAvrMecSpeedUnit = (int16_t)round(digitSpeed);
 
+    if(pHandle->_Super.hAvrMecSpeedUnit > 6000)
+        eq2 = false;
+
+    pHandle->prevRawPosition = pHandle->rawPosition;
 }
 
 
@@ -104,7 +100,7 @@ void HAL_I2C_MemRxCpltCallback(I2C_HandleTypeDef *hi2c)
 
     if(ABS_ENCODER_M1.rawPosition < ABS_ENCODER_M1.posOffset)
     {
-        raw_angle = 4095 - (ABS_ENCODER_M1.posOffset - 1 - ABS_ENCODER_M1.rawPosition);
+        raw_angle = 4096 - ABS_ENCODER_M1.posOffset + ABS_ENCODER_M1.rawPosition;
     }
     else
         raw_angle = ABS_ENCODER_M1.rawPosition - ABS_ENCODER_M1.posOffset;

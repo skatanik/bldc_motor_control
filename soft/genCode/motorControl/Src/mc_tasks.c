@@ -35,7 +35,7 @@
 #include "parameters_conversion.h"
 
 /* USER CODE BEGIN Includes */
-#include "control_functions.h"
+
 /* USER CODE END Includes */
 
 /* USER CODE BEGIN Private define */
