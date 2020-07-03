@@ -37,51 +37,54 @@ bool ABS_ENC_CalcAvrgMecSpeedUnit( ABS_ENCODER_Handle_t * pHandle, int16_t * pMe
     int16_t digitDiff;
     int oppositeVal;
     float digitSpeed;
-    bool eq2;
+    volatile bool eq2;
 
     newPos = pHandle->rawPosition - 2048;
     shiftVal = pHandle->prevRawPosition - 2048;
+
+    if(newPos == shiftVal)
+        eq2 = false;
+
     if(shiftVal >= 0)
-    {
-        oppositeVal = shiftVal - 2048;
-        if(newPos < 0)
         {
-            if(newPos <= oppositeVal)
+            oppositeVal = shiftVal - 2048;
+            if(newPos < 0)
             {
-                digitDiff = - 4096 - newPos + shiftVal;
+                if(newPos <= oppositeVal)
+                {
+                    digitDiff = 4096 + newPos - shiftVal;
+                } else
+                {
+                    digitDiff = -shiftVal + newPos;
+                }
             } else
-            {
-                digitDiff = -shiftVal + newPos;
-            }
-        } else
-        {
-            digitDiff = newPos - shiftVal;
-        }
-    }
-    else
-    {
-        oppositeVal = shiftVal + 2048;
-        if(newPos >=0)
-        {
-            if(newPos <= oppositeVal)
             {
                 digitDiff = newPos - shiftVal;
+            }
+        }
+        else
+        {
+            oppositeVal = shiftVal + 2048;
+            if(newPos >=0)
+            {
+                if(newPos <= oppositeVal)
+                {
+                    digitDiff = newPos - shiftVal;
+                } else
+                {
+                    digitDiff = - 4096 + newPos - shiftVal;
+                }
             } else
             {
-                digitDiff = - 4096 + newPos - shiftVal;
+                digitDiff = newPos - shiftVal;
             }
-        } else
-        {
-            digitDiff = newPos - shiftVal;
         }
 
-    }
-
     *pMecSpeedUnit = pHandle->SpeedSamplingFreqUnit;
-    digitSpeed = ((float)digitDiff / 4096.0) * pHandle->SpeedSamplingFreqHz * SPEED_UNIT;
+    digitSpeed = (0.8*pHandle->fDigitDiff + 0.2*digitDiff / 4096.0) * pHandle->SpeedSamplingFreqHz * SPEED_UNIT;
     pHandle->_Super.hAvrMecSpeedUnit = (int16_t)round(digitSpeed);
 
-    if(pHandle->_Super.hAvrMecSpeedUnit > 6000)
+    if(pHandle->_Super.hAvrMecSpeedUnit == 0 )
         eq2 = false;
 
     pHandle->prevRawPosition = pHandle->rawPosition;

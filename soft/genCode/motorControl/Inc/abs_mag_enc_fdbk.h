@@ -62,6 +62,7 @@ typedef struct
     uint16_t pollPeriodTicks;
     uint16_t timPrescaler;
     uint16_t prevSpeed;
+    float fDigitDiff;
 
 } ABS_ENCODER_Handle_t;
 

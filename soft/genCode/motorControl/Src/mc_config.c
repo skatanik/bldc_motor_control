@@ -301,6 +301,7 @@ ABS_ENCODER_Handle_t ABS_ENCODER_M1 =
   .pollPeriodTicks      = 1000, // 1 kHz
   .timPrescaler         = 170, // get us precision
   .posOffset            = 283, //282,
+  .fDigitDiff           = 0,
   .prevSpeed            = 0
 
 };
